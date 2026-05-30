@@ -1,0 +1,200 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "OUTPUT-CONTRACT",
+  "description": "Layered contract composed at Phase 1.5 from (discipline[] x archetype x depth_tier x user_overrides). Drives Phase 6 scaffolding and Phase 8 mechanical gate.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "review_id",
+    "disciplines",
+    "archetype",
+    "depth_tier",
+    "jurisdiction",
+    "citation_style",
+    "anchor_required_count",
+    "anchor_items",
+    "required_sections",
+    "min_citations",
+    "min_tier1_citations",
+    "min_figures",
+    "min_evidence_rows",
+    "min_quant_anchors",
+    "length_cap_words",
+    "forbidden_language",
+    "model_class",
+    "screening_protocol",
+    "quality_tools",
+    "figure_requirements",
+    "source_ranking_per_section",
+    "anchor_waivers",
+    "locked_at"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.0" },
+    "review_id": { "type": "string" },
+    "disciplines": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "enum": [
+          "regulatory",
+          "mammalian_tox",
+          "ecotox",
+          "efate",
+          "residues",
+          "analytical",
+          "chemistry",
+          "efficacy",
+          "exposure"
+        ]
+      }
+    },
+    "archetype": {
+      "enum": [
+        "rapid",
+        "structured",
+        "systematic",
+        "comparative",
+        "scoping",
+        "narrative_critical",
+        "technical"
+      ]
+    },
+    "depth_tier": { "enum": ["rapid", "structured", "systematic"] },
+    "jurisdiction": {
+      "type": "object",
+      "properties": {
+        "primary": { "enum": ["EU", "MS", "global"] },
+        "ms_codes": { "type": "array", "items": { "type": "string" } },
+        "zonal": { "enum": ["N", "C", "S", "all", "NA"] }
+      },
+      "required": ["primary"]
+    },
+    "citation_style": {
+      "enum": ["efsa", "vancouver", "apa", "acs"]
+    },
+    "citation_placement": {
+      "enum": ["inline_parenthetical", "numbered_superscript", "footnote"]
+    },
+    "anchor_required_count": { "type": "integer", "minimum": 11, "maximum": 12 },
+    "anchor_items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "label", "required"],
+        "properties": {
+          "id": { "type": "integer" },
+          "label": { "type": "string" },
+          "required": { "type": "boolean" },
+          "waiver_justification": { "type": "string" }
+        }
+      }
+    },
+    "required_sections": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Ordered list of required ## headings (substring match in gate)."
+    },
+    "optional_sections": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "min_citations": { "type": "integer", "minimum": 5 },
+    "min_tier1_citations": { "type": "integer", "minimum": 1 },
+    "min_figures": { "type": "integer", "minimum": 1 },
+    "min_evidence_rows": { "type": "integer", "minimum": 0 },
+    "min_quant_anchors": { "type": "integer", "minimum": 3 },
+    "length_cap_words": { "type": "integer" },
+    "length_floor_words": { "type": "integer" },
+    "forbidden_language": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": ["proven", "definitive", "conclusive", "obviously", "clearly shows", "undeniably"]
+    },
+    "model_class": { "enum": ["strong", "mid", "weak"] },
+    "screening_protocol": {
+      "type": "object",
+      "properties": {
+        "passes": { "enum": ["single", "dual_simulated", "dual_independent"] },
+        "top_n_per_endpoint": { "type": "integer" },
+        "databases_min": { "type": "integer" },
+        "grey_sources_min": { "type": "integer" },
+        "backward_citation_chase": { "type": "boolean" },
+        "forward_citation_chase": { "type": "boolean" }
+      }
+    },
+    "quality_tools": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": { "enum": ["klimisch", "toxrtool", "cred", "ohat_rob", "amstar2", "robis", "oecd_qsar", "raaf", "sante_validation", "epp_pp1", "sanra"] }
+      },
+      "description": "Per-study-type quality appraisal tools."
+    },
+    "figure_requirements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["section", "figure_type", "required"],
+        "properties": {
+          "section": { "type": "string" },
+          "figure_type": {
+            "enum": [
+              "structure_2d",
+              "structure_grid",
+              "reaction_scheme",
+              "metabolic_pathway",
+              "prisma_flow",
+              "prisma_scr_flow",
+              "endpoint_table",
+              "dose_response",
+              "ssd_curve",
+              "rq_ter_bar",
+              "kinetic_curve",
+              "focus_pec_distribution",
+              "mrl_comparison",
+              "iesti_bar",
+              "chromatogram",
+              "transition_diagram",
+              "calibration_curve",
+              "validation_table",
+              "sar_matrix",
+              "jurisdictional_matrix",
+              "classification_matrix",
+              "timeline",
+              "evidence_map",
+              "gap_map",
+              "exposure_scenario"
+            ]
+          },
+          "required": { "type": "boolean" },
+          "trigger_condition": { "type": "string" }
+        }
+      }
+    },
+    "source_ranking_per_section": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": { "type": "string" }
+      },
+      "description": "Section → ordered source-tier list."
+    },
+    "anchor_waivers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["item_id", "justification"],
+        "properties": {
+          "item_id": { "type": "integer" },
+          "justification": { "type": "string" }
+        }
+      }
+    },
+    "locked_at": { "type": "string", "format": "date-time" },
+    "user_overrides": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

@@ -1,0 +1,222 @@
+{
+  "schema_version": "1.0",
+  "description": "Credibility / bias rules orthogonal to tier. Used by Phase 4.5 Credibility Triage + Phase 7 verification + Phase 8 gate. Bias class is separate from tier (a Tier-3 peer-reviewed paper can be DECLARED-COI; a Tier-4 grey source can be NEUTRAL).",
+  "bias_classes": {
+    "NEUTRAL": "Regulator, academic, public research institute, non-affiliated researcher",
+    "DECLARED_COI": "Industry-funded, manufacturer-employed authors, registrant data",
+    "POLITICAL": "Advocacy NGO with declared anti or pro-PPP agenda",
+    "PREDATORY": "Beall/Cabells listed publisher; pay-to-publish without rigorous peer review",
+    "TRADE_PRESS": "Industry trade outlets; market/factual context only",
+    "UNRELIABLE": "Wikipedia, blogs, social media, anonymous web sources"
+  },
+  "political_domains": {
+    "description": "Domains classified as POLITICAL. Cite-replace rule applies — never standalone evidence in CITATION-LEDGER.md.",
+    "list": [
+      "pan-europe.info",
+      "panna.org",
+      "pan-international.org",
+      "pan-uk.org",
+      "panap.net",
+      "panafrica.org",
+      "beyondpesticides.org",
+      "ewg.org",
+      "foe.org",
+      "foeeurope.org",
+      "greenpeace.org",
+      "greenpeace.de",
+      "greenpeace.fr",
+      "greenpeace.org.uk",
+      "soilassociation.org",
+      "pesticideactionnetwork.org",
+      "centerforfoodsafety.org",
+      "organicconsumers.org",
+      "iatp.org",
+      "navdanya.org",
+      "gmwatch.org",
+      "sumofus.org",
+      "avaaz.org",
+      "corporateeurope.org",
+      "foodandwaterwatch.org",
+      "ucsusa.org",
+      "naturalresourcesdefensecouncil.org",
+      "nrdc.org",
+      "biocheck.eu"
+    ],
+    "rationale": "These organisations are designed to influence regulatory and public policy. Their selection bias, framing, and synthesis decisions are value-laden. Cite the upstream Tier 1-3 source directly; drop the advocacy framing."
+  },
+  "predatory_block": {
+    "description": "Hard-block publishers. Beall's archived list + Cabells subset relevant to chemistry/tox/regulatory.",
+    "publishers": [
+      "OMICS International",
+      "OMICS Publishing Group",
+      "Bentham Open",
+      "Allied Academies",
+      "SciRes Literature",
+      "David Publishing",
+      "Scientific Research Publishing",
+      "SCIRP",
+      "IISTE",
+      "Academic Journals Inc",
+      "World Academic Publishing",
+      "Sciedu Press",
+      "Pulsus Group",
+      "Avens Publishing",
+      "Austin Publishing Group",
+      "Jacobs Publishers",
+      "Symbiosis Group",
+      "Annex Publishers",
+      "Heighten Science Publications",
+      "Open Access Pub",
+      "Lupine Publishers",
+      "Crimson Publishers"
+    ],
+    "domain_patterns": [
+      "omicsonline.org",
+      "scirp.org",
+      "scitechnol.com",
+      "longdom.org",
+      "hilarispublisher.com",
+      "iiste.org",
+      "academicjournals.org",
+      "sciedupress.com",
+      "pulsus.com",
+      "avensonline.org",
+      "austinpublishinggroup.com",
+      "jacobspublishers.com",
+      "symbiosisonlinepublishing.com",
+      "annexpublishers.com",
+      "heighpubs.org",
+      "openaccesspub.org",
+      "lupinepublishers.com",
+      "crimsonpublishers.com"
+    ]
+  },
+  "grey_listed": {
+    "description": "Case-by-case publishers; downweight Tier 3 to Tier 3- with peer-review-rigour flag. Cite only if independent corroboration exists.",
+    "publishers": {
+      "MDPI": {
+        "default_action": "accept with peer_review_rigour: questioned flag",
+        "high_quality_journals": ["Toxics", "Molecules", "Environments", "Pharmaceuticals", "Agronomy"],
+        "watch_journals": ["IJERPH", "Sustainability", "Foods", "Plants"],
+        "notes": "Large legitimate corpus; rapid review cycle weakens RoB. Prefer for replication/triangulation, not as sole source on contested endpoints."
+      },
+      "Frontiers": {
+        "default_action": "accept with peer_review_rigour: questioned flag",
+        "relevant_journals": ["Frontiers in Toxicology", "Frontiers in Environmental Science", "Frontiers in Plant Science"],
+        "notes": "Rapid peer review; flag for contested endpoints."
+      },
+      "Hindawi": {
+        "default_action": "case-by-case post-Wiley cleanup; check for retraction flags",
+        "notes": "Legacy issues; verify journal currently active and indexed in Web of Science / Scopus."
+      },
+      "Bentham Science": {
+        "default_action": "accept (distinct from legacy Bentham Open which is blocked)",
+        "notes": "Some legitimate journals; flag if author affiliations are predominantly opaque."
+      }
+    }
+  },
+  "unreliable_block": {
+    "description": "Block for citation. Permitted for discovery / synonym lookup only.",
+    "domains": [
+      "wikipedia.org",
+      "reddit.com",
+      "twitter.com",
+      "x.com",
+      "facebook.com",
+      "linkedin.com",
+      "medium.com",
+      "substack.com",
+      "quora.com",
+      "stackexchange.com",
+      "youtube.com",
+      "tiktok.com"
+    ],
+    "categories": [
+      "personal blogs",
+      "anonymous web sources",
+      "user-generated wikis",
+      "social media posts",
+      "press releases (cite the underlying study, not the release)"
+    ]
+  },
+  "trade_press_domains": {
+    "description": "Permitted for market / factual industry context only. BLOCK if used for scientific claim.",
+    "list": [
+      "agrow.com",
+      "agropages.com",
+      "phillipsmcdougall.com",
+      "agribusinessglobal.com",
+      "agrimarketing.com",
+      "agprofessional.com",
+      "farmprogress.com",
+      "agroinsight.com"
+    ]
+  },
+  "contested_endpoints": {
+    "description": "Endpoints with high political loading or active regulatory dispute. Triangulation rule applies: ≥1 Tier 1-2 source AND ≥1 independent peer-reviewed Tier 3 corroboration required. Single-source claims downgrade hedging.",
+    "list": [
+      "glyphosate carcinogenicity",
+      "glyphosate IARC 2A classification",
+      "glyphosate endocrine disruption",
+      "neonicotinoid bee toxicity",
+      "neonicotinoid sub-lethal effects",
+      "chlorpyrifos neurodevelopmental toxicity",
+      "chlorothalonil groundwater metabolites",
+      "atrazine endocrine disruption",
+      "endocrine disruption categorisation under Reg 2018/605",
+      "PFAS in PPPs",
+      "POE-tallowamine co-formulant toxicity",
+      "1,4-dioxane impurity in formulations",
+      "EDC list contestation",
+      "cocktail effects / mixture toxicity beyond CAG",
+      "low-dose endocrine effects",
+      "non-target arthropod effects of pyrethroids",
+      "soil microbiome long-term effects"
+    ],
+    "rule": "≥1 Tier 1-2 + ≥1 independent peer-reviewed Tier 3 corroboration. Independent = different first-author, different funder, different institution. Single-source = hedging downgrade + [single-source] tag in ledger."
+  },
+  "hazard_vs_risk_guard": {
+    "description": "Phrases / claim patterns that conflate hazard classification with risk under registered GAP. Flag at Phase 6 and Phase 8 Step 7.",
+    "forbidden_unguarded": [
+      "causes cancer",
+      "causes human cancer",
+      "is carcinogenic to humans",
+      "is a known human carcinogen",
+      "is toxic to consumers",
+      "exceeds safe limits",
+      "poses a risk to consumers",
+      "is an endocrine disruptor in humans",
+      "disrupts human hormones",
+      "harms human health",
+      "is toxic in the environment"
+    ],
+    "rule": "These claims require explicit exposure context (PEC, MoE, dietary intake, IESTI) in the same sentence or adjacent citation. Without exposure context, reframe to maintain hazard-vs-risk distinction or drop. CLP / IARC classifications are hazard statements, not risk statements."
+  },
+  "echo_chamber_detection": {
+    "description": "Heuristic at Phase 4 and Phase 7.",
+    "rules": [
+      "If candidate claim's only citation trail involves POLITICAL or TRADE_PRESS sources without independent Tier 1-3 corroboration → drop claim.",
+      "If ledger row has coi=advocacy or coi=trade_press, require ≥1 other ledger row with tier ≤2 supporting same claim_summary.",
+      "Patterns to detect: NGO-A → NGO-B → NGO-A (circular); NGO → trade-press → NGO (advocacy-trade loop); NGO → blog → NGO (advocacy-blog loop)."
+    ]
+  },
+  "claim_reframing_examples": {
+    "description": "Examples of how to reframe POLITICAL-source claims when an upstream Tier 1-3 source exists.",
+    "examples": [
+      {
+        "political_framing": "PAN Europe: 'Glyphosate is a probable carcinogen banned by science'",
+        "upstream_primary": "IARC Monograph Vol 112 (2017): Group 2A 'probably carcinogenic to humans' based on limited human evidence and sufficient animal evidence",
+        "regulatory_counter": "EFSA Conclusion 2023 + ECHA RAC 2022: no classification as carcinogen warranted under CLP based on full dataset",
+        "review_text": "IARC classified glyphosate as Group 2A [CIT-IARC-2017]; EFSA peer review (2023) and ECHA RAC (2022) concluded no CLP carcinogen classification warranted [CIT-EFSA-2023, CIT-ECHA-2022]. Divergence reflects different assessment frameworks (hazard identification with public-domain literature only vs full regulatory dataset including registrant studies).",
+        "what_was_dropped": "PAN framing; advocacy citation"
+      },
+      {
+        "political_framing": "EWG: 'Strawberries contain dangerous pesticide residues'",
+        "upstream_primary": "USDA Pesticide Data Program annual report — residue detections, all below tolerances",
+        "regulatory_context": "EU MRLs Reg 396/2005; EFSA Annual Monitoring Report",
+        "review_text": "USDA PDP (2024) detected residues of [substances] in [N]% of strawberry samples [CIT-USDA-2024]; all detections were below US tolerances. EU monitoring (EFSA, 2024) reported [N]% MRL exceedance rate for strawberries from EU production [CIT-EFSA-MR-2024].",
+        "what_was_dropped": "EWG ranking, 'dangerous' framing; advocacy citation"
+      }
+    ]
+  }
+}

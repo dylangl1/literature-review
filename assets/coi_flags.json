@@ -1,0 +1,97 @@
+{
+  "schema_version": "1.1",
+  "description": "Conflict-of-interest domain flags + bias_class crosswalk. Stamped on every CITATION-LEDGER.md row via lookup. COI is visible (not auto-downranking). BIAS_CLASS drives Phase 4.5 cite-replace / block decisions per credibility_rules.json.",
+  "coi_to_bias_class": {
+    "manufacturer": "DECLARED_COI",
+    "industry": "DECLARED_COI",
+    "consultancy": "DECLARED_COI",
+    "regulator": "NEUTRAL",
+    "academic": "NEUTRAL",
+    "advocacy": "POLITICAL",
+    "trade_press": "TRADE_PRESS",
+    "undisclosed": "NEUTRAL_pending_review"
+  },
+  "categories": {
+    "manufacturer": "Active substance / formulation manufacturer (registrant or competitor)",
+    "industry": "Industry association / consortium / task force",
+    "advocacy": "Advocacy NGO (anti or pro chemical use)",
+    "regulator": "Competent authority / EU agency / national regulator / WHO / OECD",
+    "academic": "University, public research institute, non-affiliated researcher",
+    "consultancy": "Regulatory consultancy (may serve manufacturer or regulator)",
+    "trade_press": "Industry trade press / market intelligence",
+    "undisclosed": "COI not declared in source — flag for user review"
+  },
+  "manufacturer_domains": [
+    "syngenta.com",
+    "bayer.com",
+    "basf.com",
+    "corteva.com",
+    "fmc.com",
+    "adama.com",
+    "lifescientific.com",
+    "upl-ltd.com",
+    "sumitomochem.com",
+    "nufarm.com",
+    "isk.co.jp",
+    "kumiaichem.com",
+    "albaughllc.com",
+    "rotam.com",
+    "sharda-cropchem.com",
+    "anpongroup.com",
+    "atul.co.in",
+    "willowoodusa.com"
+  ],
+  "industry_association_domains": [
+    "croplifeeurope.eu",
+    "croplife.org",
+    "ecpa.eu",
+    "croplifeamerica.org",
+    "agrow.com"
+  ],
+  "advocacy_domains": [
+    "pan-europe.info",
+    "panna.org",
+    "foe.org",
+    "foeeurope.org",
+    "greenpeace.org",
+    "beyondpesticides.org",
+    "ewg.org"
+  ],
+  "regulator_domains": [
+    "efsa.europa.eu",
+    "echa.europa.eu",
+    "eur-lex.europa.eu",
+    "ec.europa.eu",
+    "food.ec.europa.eu",
+    "oecd.org",
+    "fao.org",
+    "who.int",
+    "iarc.who.int",
+    "ntp.niehs.nih.gov",
+    "epa.gov",
+    "canada.ca",
+    "apvma.gov.au",
+    "bvl.bund.de",
+    "anses.fr",
+    "ctgb.nl",
+    "hse.gov.uk",
+    "fera.co.uk",
+    "eppo.int"
+  ],
+  "consultancy_domains": [
+    "exponent.com",
+    "ramboll.com",
+    "ricardo.com",
+    "wood.com",
+    "knoell.com",
+    "tsgeurope.com"
+  ],
+  "trade_press_domains": [
+    "agrow.com",
+    "agropages.com",
+    "phillipsmcdougall.com",
+    "agribusinessglobal.com",
+    "thefutureoffood.com"
+  ],
+  "default_for_unknown": "undisclosed"
+}

@@ -1,26 +1,61 @@
 ---
 name: ppp-literature-review
-description: Rigorous, defensible literature reviews for EU plant protection product (PPP) regulatory work on active substances, metabolites, co-formulants, formulations. Use for literature reviews, evidence synthesis, hazard ID, risk analysis, data gap analysis vs Reg 283/284/2013, MRL review, Article 12 review, dossier/RAR support, renewal preparation, endocrine disruptor (ED) assessment, substitution assessment, data protection / reference product checks, weight-of-evidence (WoE), mode-of-action review. Sources tiered by regulatory defensibility (EFSA/ECHA/RMS first, peer-reviewed second, grey literature last); citations verified pre-delivery; EFSA-style writing. Triggers: "lit review", "PPP review", "evidence synthesis", "what does EFSA say about", "data gap analysis", "WoE for", "ED assessment", "DP check", "RAR literature", "MRL review", "Article 12 review", "/lit-review", "/ppp-review", "/evidence-synthesis".
+description: Rigorous, defensible literature reviews for EU plant protection product (PPP) regulatory work on active substances, metabolites, co-formulants, formulations. Use for literature reviews, evidence synthesis, hazard ID, risk analysis, data gap analysis vs Reg 283/284/2013, MRL review, Article 12 review, dossier/RAR support, renewal preparation, endocrine disruptor (ED) assessment, substitution assessment, data protection / reference product checks, weight-of-evidence (WoE), mode-of-action review, analytical method review, chemistry/MoA review, comparative substance review, scoping reviews, narrative-critical positions. Sources tiered by regulatory defensibility (EFSA/ECHA/RMS first, peer-reviewed second, grey literature last); citations verified pre-delivery; EFSA-style writing. Triggers: "lit review", "PPP review", "evidence synthesis", "what does EFSA say about", "data gap analysis", "WoE for", "ED assessment", "DP check", "RAR literature", "MRL review", "Article 12 review", "comparative review", "scoping review", "analytical method review", "/lit-review", "/ppp-review", "/evidence-synthesis".
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash, WebSearch, WebFetch, AskUserQuestion, mcp__chemwise__search_substance, mcp__chemwise__get_registration_summary, mcp__chemwise__get_regulatory_status, mcp__chemwise__get_ppp_approval_status, mcp__chemwise__get_ppp_expiry_alerts, mcp__chemwise__get_mrl_status, mcp__chemwise__get_efsa_conclusion_metadata, mcp__chemwise__get_efsa_conclusion_fulltext, mcp__chemwise__search_efsa_conclusions, mcp__chemwise__get_cl_classification, mcp__chemwise__check_svhc, mcp__chemwise__list_svhc, mcp__chemwise__get_substance_review_history, mcp__chemwise__query_bcpc, mcp__chemwise__get_structure, mcp__chemwise__list_ppp_substances
 metadata:
     skill-author: Dylan Grimes Larkin (Regulatory Scientist @ Life Scientific)
     domain: EU PPP Regulatory affairs/science
-    version: 1.0
+    version: 2.0
 ---
 
 # PPP Literature Review
 
+## Supported models (Claude-only)
+
+This skill supports Claude models exclusively.
+
+- **Minimum**: Claude Opus 4.7 Medium reasoning
+- **Default**: Claude Opus 4.7 Medium reasoning
+- **Preferred (systematic / comparative / multi-discipline)**: Claude Opus 4.7 High reasoning
+- **Permitted (rapid archetype only, single discipline)**: Claude Sonnet 4.7
+- **Blocked**: Sonnet ≤4.6, Haiku class, all non-Claude models
+
+At Phase 1 entry, detect model via `$ANTHROPIC_MODEL` env / model name. If below floor, halt with:
+
+> Skill ppp-literature-review requires Claude Opus 4.7 (Medium reasoning minimum) or Sonnet 4.7 (rapid archetype only). Current model: {detected}. Halting. Switch model and re-invoke.
+
+Full details: `references/model_floor_protocol.md`.
+
+## MANDATORY MINIMUMS (read every phase)
+
+These rules are NON-NEGOTIABLE regardless of model, archetype, or "quick" framing.
+
+1. **ANCHOR COVERAGE 12/12.** Every review (including rapid) completes the 12-item regulatory anchor. Chemwise IS preferred but NOT required — use fallback URLs from `references/anchor_fallback_paths.md` when chemwise unavailable. No skipping. No "judging not relevant".
+2. **CITATION PER CLAIM.** Every quantitative value, regulatory statement, study reference carries a `[CIT-N]` marker resolving to `CITATION-LEDGER.md`. No orphan claims.
+3. **NO CITATION FROM MEMORY.** Every cite must be WebFetched (or chemwise-retrieved) with `fetched_at` timestamp in the ledger. Inventing DOIs/authors/titles is forbidden and gate-detected.
+4. **QUANTITATIVE ANCHORS** require value + unit + species/matrix + source. All four. Missing one = orphan = fail.
+5. **IDENTITY VERIFIED BEFORE SEARCH.** CAS + EC + InChIKey confirmed across ≥2 sources before any literature search. Trade-name-only searches forbidden.
+6. **SOURCE TIER FROM LOOKUP, NOT JUDGEMENT.** `assets/source_tier_lookup.json` is authoritative. Cannot promote EFSA, cannot upgrade preprints.
+7. **BIAS-CLASS FROM LOOKUP.** `assets/credibility_rules.json` is authoritative. POLITICAL sources (PAN, EWG, Beyond Pesticides, FoE, Greenpeace, etc.) are NEVER standalone evidence. Cite-replace rule applies — locate upstream Tier 1-3 primary and cite that. PREDATORY publishers blocked. UNRELIABLE (Wikipedia, blogs, social) blocked for citation, discovery-only. TRADE-PRESS for market/factual context only, never scientific claim.
+8. **CONTESTED ENDPOINTS** require triangulation: ≥1 Tier 1-2 source AND ≥1 independent peer-reviewed Tier 3 corroboration. Single-source on contested endpoint → hedging downgrade + [single-source] tag in ledger.
+9. **HAZARD vs RISK** distinction preserved. Hazard classification (CLP CMR, IARC 2A/2B) does NOT equal risk under registered GAP. Claims crossing the boundary require explicit exposure context (PEC, MoE, dietary intake, IESTI) in adjacent text or are reframed/dropped.
+10. **CONTRACT-DRIVEN.** Phase 1.5 emits `OUTPUT-CONTRACT.md` + `.json`. All downstream phases must satisfy the contract. Phase 8 gate is mechanical, not judgemental.
+11. **QUICK = NARROW SCOPE, NOT FEWER SOURCES.** Rapid archetype reduces scope, not the integrity floor.
+12. **NO ABSOLUTIST LANGUAGE.** Forbidden: "proven", "definitive", "conclusive", "obviously", "clearly shows", "undeniably". Use calibrated hedging per `references/quality_appraisal.md`.
+13. **NO EM/EN DASHES.** Single hyphens, parentheses, commas, periods only.
+
 ## Purpose
 
-Produce literature reviews suitable for EU regulatory submissions, internal scientific decisions, and legal defensibility. Diligence, accuracy, completeness, and traceable citation are non-negotiable. Output must withstand scrutiny from EFSA peer review, RMS evaluators, and competent authority audits.
+Produce literature reviews suitable for EU regulatory submissions, internal scientific decisions, and legal defensibility. Diligence, accuracy, completeness, and traceable citation are non-negotiable. Output must withstand scrutiny from EFSA peer review, RMS evaluators, and competent authority audits — across any model version.
 
 ## When to Use
 
 Trigger when the user requests any of:
-- Literature review, evidence synthesis, state-of-the-art summary
+- Literature review, evidence synthesis, state-of-the-art summary, scoping review, comparative review, narrative position
 - Hazard identification, hazard characterisation
 - Risk analysis, risk characterisation, weight-of-evidence (WoE)
-- Endpoint review (tox, ecotox, fate, residue, efficacy)
+- Endpoint review (tox, ecotox, fate, residue, efficacy, exposure)
+- Analytical method or chemistry / MoA review
 - Data gap analysis vs Reg 283/2013 or 284/2013
 - MRL review or setting support
 - Article 12 MRL review, Article 43 product re-authorisation
@@ -34,311 +69,421 @@ Trigger when the user requests any of:
 
 Do NOT use for: quick factual lookups (use chemwise directly), single-document summary, drafting non-literature regulatory text.
 
+## Layered Contract Model
+
+Output structure is composed from four layers. Layers tighten downward; no layer can violate a higher layer's floor.
+
+```
+Layer 0  EU evaluation spine     (always; integrity floor)
+Layer 1  Discipline overlay      (one or more: regulatory / mammalian_tox / ecotox / efate / residues / analytical / chemistry / efficacy / exposure)
+Layer 2  Archetype overlay       (rapid / structured / systematic / comparative / scoping / narrative_critical / technical)
+Layer 3  User overrides          (jurisdiction, depth, citation style, length within L1+L2 floor)
+```
+
+L0 reference: see `references/discipline_overlays.md` (multi-discipline composition section at bottom).
+L1 reference: `references/discipline_overlays.md`.
+L2 reference: `references/archetype_integrity_contracts.md`.
+L3: captured at Phase 1.
+
 ## Operating Principles
 
-1. **Regulatory truth precedes peer-reviewed truth.** EFSA conclusion or RMS RAR overrides journal paper on contested endpoints.
-2. **Cite or omit.** Every quantitative claim, regulatory statement, and study reference carries an inline citation resolving to a verifiable source. No orphan claims.
-3. **Tier every source.** Source tier governs weight. Tier and Klimisch (or equivalent) recorded per included item.
-4. **Document the negative space.** Excluded studies, failed queries, and data gaps are logged as carefully as included findings.
+1. **Regulatory truth precedes peer-reviewed truth.** EFSA Conclusion or RMS RAR overrides journal paper on contested endpoints.
+2. **Cite or omit.** Every quantitative claim, regulatory statement, and study reference carries an inline `[CIT-N]` resolving to a verifiable source in `CITATION-LEDGER.md`.
+3. **Tier every source** via lookup (`assets/source_tier_lookup.json`). Tier governs weight. Klimisch (or equivalent) recorded per included study.
+4. **Document the negative space.** Excluded studies, failed queries, anchor misses, data gaps logged as carefully as included findings.
 5. **Calibrated language.** Hedging matches evidence weight. Absolutes only where legislation defines them.
 6. **Reproducibility.** Search strings, dates, databases, hit counts captured verbatim in `SEARCH-LOG.md`.
+7. **Determinism over judgement.** Model selects among pre-tiered sources, fills pre-scaffolded sections, uses canned search blocks. Contract / scaffold / gate externalised so quality is invariant across models.
 
-## Writing Conventions (enforced)
+## Writing Conventions (enforced at gate)
 
 - Third person. Past tense for findings, present tense for established knowledge and current regulatory status.
-- No em-dashes or en-dashes. Use single hyphens, parentheses, commas, periods.
-- No subjective, informal, ambiguous, vague, or passive-leaning language where active is clearer.
-- No exaggeration. Match language to evidence weight: "demonstrated" (multi-study, Klimisch 1, replicated) vs "indicated" (single study) vs "reported but not independently confirmed".
-- Quantitative anchors required: NOAEL/LOAEL/NOEC/LD50 with units, n, route, species, study duration, CI where reported.
+- No em-dashes or en-dashes. Single hyphens, parentheses, commas, periods.
+- No subjective, informal, ambiguous, vague, passive-leaning language where active is clearer.
+- No absolutist language ("proven", "definitive", "conclusive", etc.).
+- Quantitative anchors required: NOAEL/LOAEL/NOEC/LC50/LD50/DT50/Koc/LOQ/etc. with units, n, route, species, study duration, CI where reported.
 - Acronyms expanded on first use; glossary appended.
 - Distinguish source voice explicitly: "EFSA concluded …" vs "the applicant reported …" vs "one peer-reviewed study found …" vs "industry task force documents suggest …".
 
 ## Workflow
 
-Execute phases sequentially. Do not skip Phase 1 or Phase 6.
+Execute phases sequentially. Do not skip any phase. Phase 1, 1.5, 2, 7, and 8 are gates.
 
-### Phase 1: Scope Lock (mandatory gate)
+### Phase 1 — Scope Lock (gate)
 
-Use `AskUserQuestion` to lock scope before any searching. Capture:
+Use `AskUserQuestion` to lock scope before any searching. Capture (enum where possible to constrain weak models):
 
-1. **Question type**: hazard ID | hazard characterisation | exposure | risk analysis | risk characterisation | data gap | MRL review | DP/reference product | ED assessment | substitution | renewal | efficacy/resistance | mode of action | regulatory precedent
-2. **PECO-R framework** (adapted PICO):
-   - **P**opulation: target organism / human subpopulation / environmental compartment / matrix
-   - **E**xposure: substance + route + duration + concentration range
-   - **C**omparator: control, reference substance, baseline GAP, regulatory threshold
-   - **O**utcome: endpoint(s), measured parameters
-   - **R**egulatory context: which instrument(s), which Annex point(s), which jurisdiction
-3. **Substance scope**: active substance(s), metabolites of interest, co-formulants, formulation type, CAS RN, EC number, ISO common name, IUPAC, SMILES/InChIKey
-4. **Endpoint scope**: specific Annex II/III data points; or open if exploratory
-5. **Geography/jurisdiction**: EU-wide | zonal (N/C/S) | specific MS | global comparator
-6. **Time window**: default last 10 years; full historical for renewal/ED/substitution
-7. **Use context**: dossier (new/renewal/Art.43) | MRL | Art.12 review | DP check | internal R&D | litigation defence | scientific opinion drafting
-8. **Depth tier**:
-   - **Rapid scoping** (~1 day equivalent): chemwise + EFSA + 1 academic database, top-20 papers per endpoint, no dual screening
-   - **Structured** (default, ~1 week): chemwise + EFSA + ECHA + 3 academic databases + grey lit, full PRISMA flow, single reviewer with documented exclusions
-   - **Systematic (PRISMA-grade)**: all of above + dual-screening simulation (two independent passes with different lens), formal RoB, AMSTAR-2 for included SRs
-9. **Output format**: Markdown only | Markdown + Word (.docx via `anthropic-skills:docx`) | Both
-10. **Citation style**: EFSA (default) | Vancouver | APA
+1. **Archetype** (enum): rapid | structured | systematic | comparative | scoping | narrative_critical | technical
+2. **Discipline(s)** (multi-select enum): regulatory | mammalian_tox | ecotox | efate | residues | analytical | chemistry | efficacy | exposure
+3. **Question type** (enum): hazard ID | hazard characterisation | exposure | risk analysis | risk characterisation | data gap | MRL review | DP/reference product | ED assessment | substitution | renewal | efficacy/resistance | mode of action | regulatory precedent | analytical method | comparative assessment
+4. **PECO-R framework** (or PCC for scoping):
+   - **P** Population / matrix
+   - **E** Exposure (substance + route + duration + concentration range)
+   - **C** Comparator (control, reference, baseline GAP, threshold)
+   - **O** Outcome (endpoints, parameters)
+   - **R** Regulatory context (instrument, Annex point, jurisdiction)
+5. **Substance scope**: active substance(s), metabolites, co-formulants, formulation, CAS RN, EC, ISO common name, IUPAC, SMILES/InChIKey. For comparative archetype: explicit comparator list + inclusion criteria.
+6. **Endpoint scope**: specific Annex II/III data points, or open if exploratory. For comparative: locked endpoint set applied to all comparators.
+7. **Geography/jurisdiction**: EU-wide | zonal (N/C/S) | specific MS | global comparator
+8. **Time window**: default last 10 years; full historical for renewal/ED/substitution
+9. **Use context**: dossier (new/renewal/Art.43) | MRL | Art.12 | DP | internal R&D | litigation defence | scientific opinion drafting
+10. **Depth tier**: rapid | structured | systematic (independent of archetype, e.g. structured-comparative possible)
+11. **Output format**: Markdown only | Markdown + Word (via `anthropic-skills:docx`) | Both
+12. **Citation style** (enum): efsa (default) | vancouver | apa | acs
+13. **Citation placement** (enum): inline_parenthetical | numbered_superscript | footnote
+14. **Model class** (enum, user-confirmed or auto-detected): strong | mid | weak — drives behavioural floor per `references/model_floor_protocol.md`
+15. **Anchor waivers** (any of the 12 items NA for this scope): list item IDs + justifications
 
-Write captured scope to `SCOPE.md` at top of working directory. Block downstream phases until user confirms.
+Write captured scope to `SCOPE.md`. Block downstream phases until user confirms.
 
-### Phase 2: Regulatory Anchor (chemwise-first)
+### Phase 1.5 — Contract Lock (gate)
 
-Before any web search, establish regulatory ground truth via chemwise MCP. Cache results to `regulatory_anchor/`:
+Compose `OUTPUT-CONTRACT.md` (human) and `OUTPUT-CONTRACT.json` (machine) from Layer composition:
 
-For each substance in scope, execute (in parallel where independent):
+1. Start with L0 EU spine (always-required sections — `references/discipline_overlays.md` §"Common EU spine" via L1 overlays union).
+2. Union all selected L1 disciplines from `references/discipline_overlays.md`. Order per "Multi-discipline composition" rule (Identity → Physchem → Analytical → Mammalian tox → Residues → Efate → Ecotox → Efficacy → Exposure → Regulatory implications).
+3. Apply L2 archetype overlay from `references/archetype_integrity_contracts.md` — sets screening protocol, length cap/floor, figure requirements, forbidden behaviours.
+4. Apply L3 user overrides — must not violate L0+L1+L2 floor.
+5. Validate composed contract against `assets/contract_schema.json`.
+6. Write:
+   - `OUTPUT-CONTRACT.md` — human-readable with required sections, figures, min counts, citation rules, anchor list, gate criteria
+   - `OUTPUT-CONTRACT.json` — machine-readable per schema; consumed at Phase 8 gate via `jq`
+   - `QUALITY-CHECKLIST.md` — pre-populated checklist boxes derived from contract
+7. Confirm contract to user (display key counts: required sections N, min citations M, min figures F, anchor items 12 or 11-waived).
+8. Contract immutable after this gate. Model cannot edit; user-only re-entry via Phase 1.
 
-1. `mcp__chemwise__search_substance` → confirm identity, retrieve synonyms, CAS/EC/ISO mapping
-2. `mcp__chemwise__get_structure` → InChIKey, SMILES, structural validation
-3. `mcp__chemwise__get_registration_summary` → registration footprint
-4. `mcp__chemwise__get_regulatory_status` + `mcp__chemwise__get_ppp_approval_status` → current EU approval state, expiry, conditions
-5. `mcp__chemwise__get_ppp_expiry_alerts` → renewal timeline context
-6. `mcp__chemwise__get_substance_review_history` → version control of regulatory position
-7. `mcp__chemwise__get_efsa_conclusion_metadata` → EFSA peer review record
-8. `mcp__chemwise__get_efsa_conclusion_fulltext` → conclusion text for endpoint extraction
-9. `mcp__chemwise__get_mrl_status` → if residue/MRL in scope
-10. `mcp__chemwise__get_cl_classification` → CLP harmonised classification
-11. `mcp__chemwise__check_svhc` → REACH SVHC cross-check
-12. `mcp__chemwise__query_bcpc` → BCPC Pesticide Manual entry
+### Phase 2 — Regulatory Anchor (gate)
 
-If scope = DP/reference product, additionally trigger `anthropic-skills:data-protection` for RR sourcing and cross-reference with substance review history for submission timeline.
+Establish regulatory ground truth before any literature search.
 
-Cross-jurisdictional endpoint discovery (broader than single substance):
-- `mcp__chemwise__search_efsa_conclusions` with endpoint/topic keywords
-- `mcp__chemwise__list_ppp_substances` with filter criteria if comparator search
+1. Generate `regulatory_anchor/CHEMWISE-CHECKLIST.md` from `references/anchor_fallback_paths.md` (12 unchecked items + waivers marked NA).
+2. For each item:
+   - **Try chemwise primary** (per item's primary tool in `references/anchor_fallback_paths.md`).
+   - If chemwise unavailable OR substance not in chemwise DB → **try Fallback 1** (WebFetch).
+   - If Fallback 1 fails → **try Fallback 2**.
+   - If all fail → log to `regulatory_anchor/ANCHOR-MISSES.md`, leave item unchecked.
+3. Cache each item's response to `regulatory_anchor/{NN_item}.md` with YAML frontmatter (source, url, accessed, fallback_tier, chemwise_attempted, chemwise_result).
+4. **Identity verification** (item 1): require CAS match across ≥2 sources. Write `cross_verified: true` to `regulatory_anchor/01_identity.md`. If fails, BLOCK Phase 3.
+5. For comparative archetype: repeat full anchor for each comparator (N×12).
+6. Output `regulatory_anchor/anchor_summary.md` — synthesised identity + regulatory status + key EFSA endpoints + classification + dated source list.
+7. For legislation, resolve via `assets/eu_ppp_regulations.json` (`local_md` field) before WebFetching EUR-Lex. Cite as CELEX.
 
-For legislative anchoring, resolve via `assets/eu_ppp_regulations.json` (lookup by CELEX; fields: `celex`, `type`, `number`, `short_title`, `category`, `status`, `subject`, `local_md`, `eurlex_page`, `eurlex_html`, `eurlex_pdf`). Read the `local_md` file directly. Do not WebFetch EUR-Lex when local copy exists. Cite as CELEX (e.g. `Reg (EC) 1107/2009, Art. 4(1) [CELEX:32009R1107]`).
+### Phase 3 — Tiered Literature Search
 
-For guidance citation, consult `references/PPP_Guidance_Documents_Reference.md`, `references/PPP_National_Guidance_Documents_Reference.md`, and `references/OECD_Test_Guidelines_Reference.md` for canonical document IDs. OECD Test Guideline PDF URLs are resolved via `assets/oecd_test_guidelines.json` (lookup by `section` + `tg_num`; fields: `title`, `page_url`, `pdf_url`, `pubid`). Fetch on demand with WebFetch using the `pdf_url` field; do not bundle PDFs.
+Build search blocks from PECO-R using `assets/search_blocks/{archetype}/{discipline}/{endpoint}.txt` canned Boolean strings. Substitute `{SUBSTANCE}`, `{CAS}`, `{SYNONYMS}` tokens only. No freeform queries (mid/weak models).
 
-Output of Phase 2: `regulatory_anchor/anchor_summary.md` containing identity, current status, key EFSA conclusion endpoints, classification, and dated source list. This is the spine the rest of the review hangs on.
+Run tier order so higher-tier sources establish canonical claims first.
 
-### Phase 3: Tiered Literature Search
+**Tier 1 — Regulatory primary** (largely complete via Phase 2): EFSA, ECHA, RMS RAR/DAR, EU Pesticides DB, JMPR/JECFA, OECD monographs.
 
-Build search blocks from PECO-R. Run searches in tier order so higher-tier sources establish the canonical claims first.
+**Tier 2 — Authoritative secondary**: US EPA, PMRA, APVMA, FAO, IARC, NTP, WHO/IPCS, IUCLID/eChemPortal, BCPC PM, PPDB, BPDB.
 
-**Tier 1 — Regulatory primary** (already partially complete via Phase 2)
-- EFSA Journal full-text (via chemwise + WebFetch for non-cached opinions)
-- EFSA OpenFoodTox endpoints
-- ECHA: RAC/SEAC opinions, CLH dossiers, REACH registration dossiers
-- EU Pesticides Database
-- RMS DAR/RAR (cite RMS, year, version)
-- MS competent authority registers (BVL, ANSES, CTGB, HSE, etc.)
-- JMPR/JECFA monographs, Codex MRLs
-- OECD Test Guidelines and monographs (index: `references/OECD_Test_Guidelines_Reference.md`; URL resolver: `assets/oecd_test_guidelines.json`; fetch PDFs on demand via WebFetch)
+**Tier 3 — Peer-reviewed primary**: per discipline source ranking in `references/discipline_overlays.md`. Identifier-first (CAS/EC/ISO). No trade-name queries. Backward + forward citation chase from EFSA Conclusion bibliography (highest yield). For systematic archetype: mandatory.
 
-**Tier 2 — Authoritative secondary**
-- US EPA (regulations.gov dockets, OPP risk assessments)
-- PMRA (Canada), APVMA (Australia), FAO
-- IARC monographs, NTP, WHO/IPCS EHC
-- IUCLID extracts, eChemPortal
-- BCPC Pesticide Manual, PPDB (Hertfordshire), BPDB
+**Tier 4 — Grey** (cite with tier flag): industry task force (COI flag), conference proceedings, theses (only if Tier 1-3 cited), preprints (label non-peer-reviewed).
 
-**Tier 3 — Peer-reviewed primary literature**
-Search via `WebSearch` and `WebFetch`. Priority journals:
-- J. Agric. Food Chem.
-- Pest Manag. Sci.
-- Environ. Toxicol. Chem.
-- Chemosphere
-- Sci. Total Environ.
-- Regul. Toxicol. Pharmacol.
-- Crit. Rev. Toxicol.
-- Food Chem. Toxicol.
-- Arch. Toxicol.
-- EFSA Journal
-- Environ. Sci. Technol.
-- Ecotoxicol. Environ. Saf.
+**Default reject**: predatory (Beall/Cabells), non-English without verified translation, blog/advocacy claims not triangulated against T1-2, trade press except factual market context.
 
-Search identifier-first: CAS RN, EC number, ISO common name. Avoid trade-name-only queries.
+Document every search in `SEARCH-LOG.md` using `assets/search_log_template.md`: database, date, exact query string, filters, hit count, action.
 
-Use Boolean blocks: `(substance OR synonyms) AND (endpoint OR endpoint_synonym) AND (population OR matrix) AND (year_filter)`.
+### Phase 4 — Screening and Selection
 
-Backward and forward citation chasing from EFSA conclusion bibliography is highest yield. Mine EFSA conclusion reference lists first.
+1. **Deduplicate** by DOI primary, then fuzzy title match.
+2. **Title screening** against PECO-R inclusion/exclusion from SCOPE.md. Log every exclusion with reason code (lang | scope | endpoint | quality | duplicate | predatory).
+3. **Abstract screening**.
+4. **Full-text screening** with study-design quality flags.
+5. **Systematic archetype**: simulate dual screening (two passes with different framing — hazard-first vs exposure-first). Disagreement rate logged.
+6. Build PRISMA 2020 flow (or PRISMA-ScR for scoping, PRISMA-RR for rapid) from `assets/prisma_template.md`. Write to `PRISMA-FLOW.md`.
 
-**Tier 4 — Grey literature** (cite with tier flag)
-- Industry task force reports (ECPA/CropLife)
-- Conference proceedings (SETAC, BCPC Congress, IUPAC)
-- Theses (only if cited by Tier 1-3 sources)
-- Preprints (label clearly as non-peer-reviewed; verify final publication status)
+### Phase 4.5 — Credibility Triage (gate)
 
-**Default rejection** (do not cite):
-- Predatory journals (Beall/Cabells check)
-- Non-English without verified translation
-- Blog posts, advocacy NGO claims unless triangulated against Tier 1-2
-- Trade press except for factual market context
+Before quality appraisal. Apply the decision tree in `references/source_ranking.md` §10 to every candidate source surviving Phase 4 screening. For each:
 
-Document every search in `SEARCH-LOG.md` using `assets/search_log_template.md`:
-- Database, date, exact query string, filters, hit count, action taken (export N, screen N)
+1. Domain → `assets/source_tier_lookup.json` → TIER
+2. Domain + author affiliation → `assets/coi_flags.json` + `assets/credibility_rules.json` → BIAS_CLASS
+3. Branch:
+   - **PREDATORY** (per `credibility_rules.json` predatory_block list + domain_patterns): BLOCK; log to `SEARCH-LOG.md` exclusion section with reason `predatory`.
+   - **UNRELIABLE** (Wikipedia, blogs, social): BLOCK for citation; permitted for discovery only.
+   - **POLITICAL** (PAN, EWG, Beyond Pesticides, FoE, Greenpeace, etc. per `credibility_rules.json` political_domains list): apply **cite-replace protocol**:
+     a. Locate upstream Tier 1-3 primary source.
+     b. If primary Tier 1-2: cite primary, drop POLITICAL source.
+     c. If primary Tier 3 peer-reviewed: verify primary actually supports claim as POLITICAL represents (selective-quote check, jurisdiction check, hazard-vs-risk check, confidence-interval check). Cite primary if verified; drop both if misrepresented.
+     d. If primary Tier 4 or absent: claim not citable; drop.
+     e. POLITICAL source NEVER appears in `CITATION-LEDGER.md` as standalone evidence. Exception: review's question is *about* the position itself, or narrative-critical archetype counter-evidence section.
+   - **TRADE-PRESS**: permitted for market/factual context only; BLOCK if used for scientific claim.
+   - **DECLARED-COI** (industry / manufacturer / consultancy): ACCEPT with `coi` flag in ledger row; tier unchanged.
+   - **NEUTRAL**: ACCEPT at tier.
+4. **Grey-listed publishers** (MDPI, Frontiers, Hindawi case-by-case per `credibility_rules.json` grey_listed): default Tier 3 with `peer_review_rigour: questioned` flag; downweight for contested endpoints.
+5. **Echo-chamber check**: walk citation chain. If only POLITICAL or TRADE-PRESS sources cite the claim → drop. Require ≥1 independent Tier 1-3 corroborator.
+6. **Hazard-vs-risk guard**: scan claim text for forbidden_unguarded phrases (per `credibility_rules.json` hazard_vs_risk_guard). Any claim crossing hazard→risk without exposure context must be reframed or dropped.
+7. **Contested endpoint check** (per `credibility_rules.json` contested_endpoints list): triangulation required (≥1 Tier 1-2 + ≥1 independent Tier 3). Single-source = hedging downgrade + `[single-source]` tag.
 
-### Phase 4: Screening and Selection
+Output: every surviving source has TIER + BIAS_CLASS + COI + peer_review_rigour fields in `CITATION-LEDGER.md`. Excluded sources logged in `SEARCH-LOG.md` with exclusion reason from enum: `predatory | unreliable | political_no_primary | political_misrepresented | trade_press_scientific | echo_chamber | hazard_risk_conflation`.
 
-1. **Deduplicate** by DOI primary, then fuzzy title match across all collected hits.
-2. **Title screening** against PECO-R inclusion/exclusion criteria from `SCOPE.md`. Log every exclusion with reason code (lang | scope | endpoint | quality | duplicate | predatory).
-3. **Abstract screening** with same criteria.
-4. **Full-text screening** with detailed criteria including study-design quality flags.
-5. For **systematic tier**: simulate dual screening by running two independent passes with different framing (hazard-first vs exposure-first). Note disagreement rate as limitation.
-6. Build PRISMA 2020 flow diagram from `assets/prisma_template.md`. Write to `PRISMA-FLOW.md`.
+### Phase 5 — Quality Appraisal
 
-### Phase 5: Quality Appraisal
+Apply per `references/quality_appraisal.md` and contract's `quality_tools` field. Record in `EVIDENCE-TABLE.csv` (header pre-populated by skill at Phase 6 scaffold time).
 
-Apply study-type-matched tools to each included study. Record in `EVIDENCE-TABLE.csv` (template at `assets/evidence_table_template.csv`):
+Per study: source tier (from lookup), Klimisch (or equivalent), GLP Y/N, guideline-compliant Y/N, deviations, COI flag (industry-funded | regulator | independent academic | undisclosed) from `assets/source_tier_lookup.json` and `assets/coi_flags.json`.
 
-| Study type | Primary tool | Secondary | Compliance flag |
-|---|---|---|---|
-| In vivo mammalian tox | Klimisch (1-4) | ToxRTool | OECD TG + GLP |
-| Ecotoxicology | Klimisch | CRED (Moermond) | OECD TG + GLP |
-| Epidemiology | OHAT RoB | Navigation Guide | STROBE/CONSORT |
-| In vitro / NAMs | OECD GD 286 | EURL ECVAM validation | GIVIMP |
-| Environmental fate | FOCUS scenario alignment | OECD 307/308 conformity | OECD TG + GLP |
-| Residue field trials | OECD 509 | GAP alignment | OECD TG + GLP |
-| Systematic reviews | AMSTAR-2 | ROBIS | PRISMA compliance |
-| QSAR / in silico | OECD QSAR validation principles (5 OECD principles) | REACH Annex XI 1.3 | OECD QMRF |
-| Read-across | ECHA RAAF | - | OECD Adverse Outcome Pathway |
+Scoping archetype: skip Klimisch (descriptive only); source-tier still mandatory.
 
-For each included study record: source tier, Klimisch (or equivalent), GLP Y/N, guideline-compliant Y/N, deviations, conflict-of-interest flag (industry-funded | regulator | independent academic | undisclosed).
+### Phase 6 — Thematic Synthesis
 
-Detailed criteria in `references/quality_appraisal.md`.
+1. **Scaffold REVIEW.md** by copying the archetype template (`assets/templates/{archetype}.md`) + injecting discipline-specific sections per L1. All required headings + empty tables + `[TODO: …]` placeholders pre-populated by skill (not model).
+2. **Fill, do not delete.** Model cannot remove headings or tables. Empty content = gate failure. To declare a section not applicable, write entry to `OMISSIONS.md` with Reg article justification — gate inspects.
+3. Synthesise across studies, never study-by-study. Cross-study tables per endpoint section.
+4. WoE per endpoint per EFSA WoE guidance (EFSA J. 2017;15(8):4971). Hedging calibrated:
+   - "Demonstrated" / "established": ≥2 Klimisch 1 GLP, consistent
+   - "Indicated" / "supported by": single Klimisch 1 OR multiple Klimisch 2
+   - "Reported": single Klimisch 2-3, or grey triangulated
+   - "Suggested but not confirmed": Klimisch 3-4 or unreplicated peer-reviewed
+   - Never "proven", "definitive", "conclusive" unless EFSA Conclusion or harmonised classification supports
+5. Figures rendered per `OUTPUT-CONTRACT.json` `figure_requirements`. Numbering + caption + source/license + alt-text mandatory. Chemical structures rendered from chemwise InChIKey/SMILES (or PubChem CID fallback).
+6. Every quantitative claim: value + unit + species/matrix + source + CIT marker.
 
-### Phase 6: Thematic Synthesis
+### Phase 7 — Citation Verification (gate)
 
-Synthesise across studies, never study-by-study. Required structure for the main `REVIEW.md`:
+Mandatory before delivery. For each `[CIT-N]` in REVIEW.md:
 
-1. **Executive summary** (max 1 page)
-2. **Regulatory context** — cite from `assets/eu_ppp_regulations/` and Phase 2 anchor
-3. **Substance identity and physicochemical properties**
-4. **Mode of action / mechanism** (if relevant)
-5. **Hazard profile**
-   - 5.1 Mammalian toxicology by endpoint (ADME, acute, repeat-dose, repro/dev, genotox, carcinogenicity, neurotox, ED)
-6. **Ecotoxicology** by taxonomic group (aquatic vertebrates, invertebrates, algae, bees, non-target arthropods, earthworms, soil microorganisms, birds, mammals, non-target plants)
-7. **Environmental fate and behaviour** (soil, water, air, photolysis, hydrolysis, metabolism, leaching, PEC modelling)
-8. **Residues and dietary exposure** (plant metabolism, livestock metabolism, processing, MRL coverage, dietary risk)
-9. **Efficacy and resistance** (if in scope)
-10. **Cross-jurisdictional risk assessment outcomes** (EU vs US vs other)
-11. **Weight-of-evidence integration** — explicit WoE per endpoint per EFSA WoE guidance
-12. **Data gaps and uncertainties** mapped to Reg 283/2013 and 284/2013 data point IDs
-13. **Regulatory implications**
-14. **Limitations of this review**
-
-Each section requires cross-study tables (endpoint × species × value × source × tier × Klimisch × GLP).
-
-Hedging calibration:
-- "Demonstrated" / "established": ≥2 Klimisch 1 GLP studies, consistent direction, replicated independently
-- "Indicated" / "supported by": single Klimisch 1 or multiple Klimisch 2
-- "Reported": single Klimisch 2-3, or grey literature triangulated
-- "Suggested but not confirmed": Klimisch 3-4 only, or unreplicated peer-reviewed claim
-- Never use "proven", "definitive", "conclusive" unless EFSA conclusion or harmonised classification supports
-
-Template at `assets/review_template.md`.
-
-### Phase 7: Citation Verification
-
-Mandatory before delivery. For each citation:
-1. Resolve DOI or URL (WebFetch each, log status)
-2. Verify author list, title, year, journal, volume, pages match
-3. Confirm cited claim actually appears at the cited location
-4. For EFSA conclusions: verify document version and publication date
-5. For legislation: verify CELEX number and current consolidated status (note: amended texts may differ from original)
+1. WebFetch the DOI/URL/CELEX; cache response.
+2. Compare returned title/authors/year/journal vs claimed in `CITATION-LEDGER.md`. Mismatch → fix or remove.
+3. For direct quantitative claims: fuzzy-match `quote_span` field to fetched content (normalised whitespace, case-insensitive grep).
+4. For DOIs: validate against CrossRef (`WebFetch https://api.crossref.org/works/{doi}`). Stamp `crossref_match: true|false` in ledger.
+5. For EFSA conclusions: verify document version + publication date.
+6. For legislation: verify CELEX + current consolidated status (note amendments).
+7. Stamp `fetched_at` ISO date per ledger row.
 
 Failed citations: fix or remove. Re-verify until pass rate = 100%.
 
-Output: `CITATION-LEDGER.md` with one row per cited source: claim summary | source | location (page/section/DOI fragment) | verified date | tier | COI flag.
+Output: `CITATION-LEDGER.md` columns per `assets/citation_formats.json` `ledger_required_fields`.
 
-### Phase 8: Output Delivery
+### Phase 8 — Pre-Delivery Mechanical Gate
 
-Generate artefact set in working directory:
-- `REVIEW.md` — main narrative
+Run the following inline Bash commands. **Any FAIL routes the model back to the indicated phase. No GATE PASS = no delivery.**
+
+```bash
+# Step 1: anchor coverage
+TICKED=$(grep -c "^- \[x\]" regulatory_anchor/CHEMWISE-CHECKLIST.md)
+REQUIRED=$(jq -r '.anchor_required_count' OUTPUT-CONTRACT.json)
+[ "$TICKED" -ge "$REQUIRED" ] && echo "PASS anchor" || echo "FAIL anchor: $TICKED/$REQUIRED -> Phase 2"
+
+# Step 2: identity cross-verified
+grep -q "cross_verified: true" regulatory_anchor/01_identity.md && echo "PASS identity" || echo "FAIL identity -> Phase 2"
+
+# Step 3: required sections present
+jq -r '.required_sections[]' OUTPUT-CONTRACT.json | while read S; do
+  grep -q "^## .*${S}" REVIEW.md && echo "PASS sec: $S" || echo "FAIL sec: $S -> Phase 6"
+done
+
+# Step 4: min citations
+N_CITES=$(grep -cE '\[CIT-[0-9]+\]' REVIEW.md)
+MIN=$(jq -r '.min_citations' OUTPUT-CONTRACT.json)
+[ "$N_CITES" -ge "$MIN" ] && echo "PASS cites: $N_CITES" || echo "FAIL cites: $N_CITES/$MIN -> Phase 3"
+
+# Step 5: every CIT-N resolves in ledger
+grep -oE '\[CIT-[0-9]+\]' REVIEW.md | sort -u | while read C; do
+  ID=$(echo $C | tr -d '[]')
+  grep -q "^| ${ID} " CITATION-LEDGER.md && echo "PASS resolve $ID" || echo "FAIL unresolved $ID -> Phase 7"
+done
+
+# Step 6: every ledger row has fetched_at
+awk -F'|' 'NR>2 && $0 !~ /20[0-9][0-9]-[0-1][0-9]-[0-3][0-9]/ {print "FAIL ledger row missing fetched_at: " $2}' CITATION-LEDGER.md
+
+# Step 7: forbidden language
+grep -nE "\b(proven|definitive|conclusive|obviously|clearly shows|undeniably)\b" REVIEW.md && echo "FAIL absolutist" || echo "PASS hedging"
+grep -nE "[—–]" REVIEW.md && echo "FAIL em/en dash" || echo "PASS dashes"
+
+# Step 8: unfilled placeholders
+grep -nE "\[TODO|\[FILL|\[XX\]|\{\{" REVIEW.md && echo "FAIL placeholder" || echo "PASS scaffold"
+
+# Step 9: min figures
+N_FIG=$(grep -cE "^!\[" REVIEW.md)
+MIN_FIG=$(jq -r '.min_figures' OUTPUT-CONTRACT.json)
+[ "$N_FIG" -ge "$MIN_FIG" ] && echo "PASS figs: $N_FIG" || echo "FAIL figs: $N_FIG/$MIN_FIG -> Phase 6"
+
+# Step 10: evidence rows
+N_EV=$(($(wc -l < EVIDENCE-TABLE.csv) - 1))
+MIN_EV=$(jq -r '.min_evidence_rows' OUTPUT-CONTRACT.json)
+[ "$N_EV" -ge "$MIN_EV" ] && echo "PASS evidence: $N_EV" || echo "FAIL evidence: $N_EV/$MIN_EV -> Phase 5"
+
+# Step 11: no POLITICAL sources as standalone evidence (cite-replace verified)
+jq -r '.political_domains.list[]' assets/credibility_rules.json | while read D; do
+  grep -q "$D" CITATION-LEDGER.md && echo "FAIL political-source in ledger: $D -> Phase 4.5" || true
+done
+
+# Step 12: no PREDATORY publishers in ledger
+jq -r '.predatory_block.domain_patterns[]' assets/credibility_rules.json | while read D; do
+  grep -q "$D" CITATION-LEDGER.md && echo "FAIL predatory-source in ledger: $D -> Phase 4.5" || true
+done
+
+# Step 13: no UNRELIABLE sources in ledger
+jq -r '.unreliable_block.domains[]' assets/credibility_rules.json | while read D; do
+  grep -q "$D" CITATION-LEDGER.md && echo "FAIL unreliable-source in ledger: $D -> Phase 4.5" || true
+done
+
+# Step 14: echo-chamber check — every advocacy/trade-press ledger row needs ≥1 tier ≤2 corroborator
+awk -F'|' 'NR>2 && ($0 ~ /advocacy/ || $0 ~ /trade_press/) {print "FLAG echo-chamber risk row: " $2 " -- verify Tier 1-2 corroborator"}' CITATION-LEDGER.md
+
+# Step 15: hazard-vs-risk guard — forbidden unguarded phrases
+jq -r '.hazard_vs_risk_guard.forbidden_unguarded[]' assets/credibility_rules.json | while read P; do
+  grep -inE "\b${P}\b" REVIEW.md && echo "REVIEW: hazard-risk conflation risk: '$P' -- verify exposure context cited adjacent" || true
+done
+
+# Step 16: contested-endpoint triangulation — for each contested endpoint mentioned, verify ≥2 independent sources
+jq -r '.contested_endpoints.list[]' assets/credibility_rules.json | while read E; do
+  if grep -qi "$E" REVIEW.md; then
+    # Count distinct ledger rows supporting this endpoint
+    N=$(grep -ciE "$E" CITATION-LEDGER.md)
+    [ "$N" -ge 2 ] || echo "FAIL contested-endpoint single-source: '$E' has $N corroborators (need ≥2 independent) -> Phase 4.5"
+  fi
+done
+
+# Step 17: quality checklist all ticked
+DONE=$(grep -c "^- \[x\]" QUALITY-CHECKLIST.md)
+TOTAL=$(grep -c "^- \[" QUALITY-CHECKLIST.md)
+[ "$DONE" -eq "$TOTAL" ] && echo "GATE PASS" || echo "FAIL checklist: $DONE/$TOTAL"
+```
+
+Model interprets output: any `FAIL` line triggers loopback to indicated phase. Re-run gate after fixes until `GATE PASS`.
+
+### Phase 9 — Output Delivery
+
+Only after `GATE PASS`. Generate artefact set in working directory:
+
+- `REVIEW.md` — main narrative (archetype-shaped)
 - `SCOPE.md` — locked scope (Phase 1)
+- `OUTPUT-CONTRACT.md` + `OUTPUT-CONTRACT.json` — Phase 1.5
 - `SEARCH-LOG.md` — queries and database hits
-- `PRISMA-FLOW.md` — screening counts
+- `PRISMA-FLOW.md` (or `PRISMA-SCR-FLOW.md` for scoping) — screening counts
 - `EVIDENCE-TABLE.csv` — per-study structured data
 - `CITATION-LEDGER.md` — verified citation registry
-- `BIBLIOGRAPHY.bib` — BibTeX with `tier`, `klimisch`, `glp`, `guideline` custom fields
-- `GAPS.md` — data gaps mapped to Reg 283/284 data points
+- `BIBLIOGRAPHY.bib` — BibTeX with `tier`, `klimisch`, `glp`, `guideline`, `coi` custom fields
+- `GAPS.md` — data gaps mapped to Reg 283/284 IDs
 - `LIMITATIONS.md` — methodological caveats
+- `QUALITY-CHECKLIST.md` — all boxes ticked
+- `OMISSIONS.md` — justified omissions (if any)
 - `regulatory_anchor/` — Phase 2 cached outputs
 
-If user selected Word output, invoke `anthropic-skills:docx` skill on `REVIEW.md` to produce `.docx` deliverable with EFSA-style formatting (Times New Roman 11pt or Arial 11pt, justified body, numbered headings, footnote citations).
+If user selected Word output: invoke `anthropic-skills:docx` on `REVIEW.md` to produce `.docx` with EFSA-style formatting (Times New Roman 11pt or Arial 11pt, justified body, numbered headings, footnote citations if applicable).
+
+## Behavioural Floors per Model Class
+
+Per `references/model_floor_protocol.md`:
+
+| Class | Behaviour |
+|---|---|
+| Strong (Opus 4+, GPT-5 high, Gemini 2.5 Pro) | Default flow |
+| Mid (Sonnet 4.5+, Haiku 4, GPT-5 mid) | Canned Boolean blocks only; stricter scaffold adherence |
+| Weak (Haiku 3.5, small local, older Sonnet 3.5) | `STATE.md` confirmation per phase; one chemwise call per turn max; contract recap at start of every phase; per-discipline sections only (no cross-discipline narrative integration) |
+
+Gate is identical across classes. Quality floor invariant.
 
 ## Source Hierarchy Quick Reference
 
-See `references/source_hierarchy.md` for full criteria. Summary order of weight for contested claims:
+See `references/source_hierarchy.md` and `references/discipline_overlays.md` per-discipline rankings. Tier assignment by lookup (`assets/source_tier_lookup.json`), not model judgement.
 
-1. EFSA Conclusion (peer-reviewed by MS)
-2. ECHA RAC opinion (for CLH)
-3. RMS RAR/DAR
-4. EFSA Scientific Opinion
-5. OECD monograph / JMPR evaluation
-6. EU MS competent authority assessment
-7. EPA / PMRA / APVMA risk assessment
-8. Peer-reviewed primary literature in Tier-1 specialist journal, Klimisch 1, GLP
-9. Peer-reviewed primary literature, Klimisch 2
-10. Industry task force grey literature (with COI flag)
-11. Preprint (with non-peer-review flag)
-12. Other grey
-
-When sources conflict, higher tier wins unless the lower-tier source post-dates the higher-tier one and presents new data. Document conflict resolution explicitly.
+When sources conflict, higher tier wins unless lower-tier post-dates higher-tier AND presents new data. Document conflict resolution explicitly.
 
 ## Common Pitfalls
 
-1. **Skipping Phase 2 regulatory anchor.** Leads to peer-reviewed claims contradicting current EFSA position without acknowledgement.
-2. **Trade-name searches.** Miss the substance under CAS/ISO. Always identifier-first.
-3. **Single-database peer-reviewed search.** Misses substance literature in agronomy vs toxicology databases.
-4. **Treating preprints as peer-reviewed.** Always flag and verify final publication.
-5. **Ignoring metabolite literature.** Most fate/residue claims hinge on metabolites; search them separately.
-6. **Citing repealed legislation.** Always confirm in-force status (e.g. Reg 1185/2009 repealed by Reg 2022/2379 from 2025).
-7. **Confusing approval status with authorisation status.** Active substance approval (EU level) ≠ product authorisation (MS level).
-8. **Failing to distinguish original vs amended text** when citing data requirements regulations.
-9. **Quantitative claim without units, species, route, duration.**
-10. **Synthesising study-by-study instead of thematically.**
+1. **Skipping Phase 2 regulatory anchor** — gate Step 1 + 2 catch.
+2. **Trade-name searches** — Phase 3 search blocks require CAS/ISO substitution.
+3. **Single-database peer-reviewed search** — contract enforces `databases_min` per archetype.
+4. **Treating preprints as peer-reviewed** — source-tier lookup pins preprints at Tier 4 with flag.
+5. **Ignoring metabolite literature** — search blocks require metabolite tokens.
+6. **Citing repealed legislation** — Phase 7 verifies CELEX consolidated status.
+7. **Confusing approval status with authorisation status** — anchor distinguishes item 4 (approval) from item 3 (registration footprint).
+8. **Failing to distinguish original vs amended text** — citation ledger captures document version.
+9. **Quantitative claim without units/species/route/duration** — gate Step 4 + manual quant check.
+10. **Synthesising study-by-study instead of thematically** — Phase 6 scaffold enforces thematic spine.
+11. **"Quick review" → drop everything** — MANDATORY MINIMUMS + rapid template integrity floor.
+12. **Comparative asymmetry** — gate enforces N×12 anchor + symmetric endpoint matrix.
 
 ## Bundled Resources
 
-**Templates** (`assets/`):
-- `review_template.md` — full review structure
+**Templates** (`assets/templates/`):
+- `rapid.md` — narrow-question quick review
+- `structured.md` — default IMRaD-extended (wraps `review_template.md`)
+- `systematic.md` — PRISMA-grade
+- `comparative.md` — matrix-driven cross-substance
+- `scoping.md` — PRISMA-ScR, evidence + gap map
+- `narrative_critical.md` — SANRA-scored position paper
+- `technical.md` — analytical / chemistry / pathway
+
+**Templates** (`assets/` root):
+- `review_template.md` — full structured review skeleton (15 sections)
 - `prisma_template.md` — PRISMA 2020 flow
 - `search_log_template.md` — reproducible search documentation
 - `evidence_table_template.csv` — per-study data extraction
 - `scope_template.md` — Phase 1 capture
 
 **References** (`references/`):
-- `source_hierarchy.md` — tiering rationale and authoritative source list
-- `quality_appraisal.md` — Klimisch, OHAT, AMSTAR-2, OECD criteria
-- `eu_regulatory_framework.md` — instrument summary, when to cite which
-- `chemwise_workflow.md` — Phase 2 MCP call sequence and caching
-- `citation_styles_ppp.md` — EFSA, Vancouver, APA examples for regulatory and journal sources
+- `source_ranking.md` — **authoritative source ranking + bias-class + cite-replace + triangulation + echo-chamber + hazard-vs-risk decision document**
+- `discipline_overlays.md` — Layer 1 per-discipline sections, figures, source rankings, quality tools, anchors (9 disciplines)
+- `archetype_integrity_contracts.md` — Layer 2 archetype failure modes + integrity guarantees
+- `anchor_fallback_paths.md` — chemwise + 2 fallback URLs per anchor item
+- `model_floor_protocol.md` — Claude-only model spec; behavioural floors per tier
+- `source_hierarchy.md` — DEPRECATED; superseded by `source_ranking.md`
+- `quality_appraisal.md` — Klimisch, OHAT, AMSTAR-2, CRED, OECD criteria
+- `eu_regulatory_framework.md` — instrument summary
+- `chemwise_workflow.md` — chemwise MCP call sequence (preferred path)
+- `citation_styles_ppp.md` — EFSA, Vancouver, APA, ACS examples
+- `PPP_Guidance_Documents_Reference.md` — SANCO/SANTE, FOCUS, EFSA, EPPO index
+- `PPP_National_Guidance_Documents_Reference.md` — MS guidance index
+- `OECD_Test_Guidelines_Reference.md` — OECD TG index
+
+**Machine-readable assets** (`assets/`):
+- `contract_schema.json` — OUTPUT-CONTRACT JSON schema
+- `source_tier_lookup.json` — domain → tier (defensibility axis)
+- `coi_flags.json` — domain → COI category
+- `credibility_rules.json` — bias-class lookup; political_domains; predatory_block; unreliable_block; trade_press; grey_listed; contested_endpoints; hazard_vs_risk_guard; echo_chamber_detection; claim_reframing_examples
+- `citation_formats.json` — citation style templates
+- `eu_ppp_regulations.json` — CELEX → local markdown resolver
+- `oecd_test_guidelines.json` — OECD TG URL resolver
 
 **Regulatory corpus** (`assets/`):
-- `assets/eu_ppp_regulations.json` — EU legislation resolver (CELEX → local markdown + EUR-Lex URLs). Lookup keys: `celex`. Use `local_md` for offline read; `eurlex_html` / `eurlex_pdf` for live fetch if local missing or for adjacent legislation landing-page entries.
-- `assets/eu_ppp_regulations/` — markdown copies of all instruments listed in the scope table (converted from EUR-Lex HTML); cite locally before fetching EUR-Lex.
-- `assets/oecd_test_guidelines.json` — OECD TG URL resolver (section, tg_num, title, page_url, pdf_url, pubid). Use for `WebFetch` of the canonical PDF when guideline-compliance verification or direct quoting needed.
+- `eu_ppp_regulations/` — local markdown copies of EU instruments
 
-**Reference indexes** (`references/`):
-- `references/PPP_Guidance_Documents_Reference.md` — SANCO/SANTE, FOCUS, EFSA, EPPO guidance index
-- `references/PPP_National_Guidance_Documents_Reference.md` — MS competent authority guidance index
-- `references/OECD_Test_Guidelines_Reference.md` — OECD TG index mapped to the `assets/oecd-test-guidelines/` PDF corpus
+**Eval** (`eval/`):
+- `reference_substances/` — golden corpus for periodic model-drift checks
 
 ## Integration
 
-- **chemwise MCP** — primary regulatory data source (Phase 2 spine)
+- **chemwise MCP** — preferred (not required) regulatory data source for Phase 2 anchor
 - **anthropic-skills:data-protection** — RR sourcing for DP scope
 - **anthropic-skills:docx** — Word deliverable
 - **anthropic-skills:m365-email-search** — retrieve prior internal correspondence on substance if relevant
-- **WebSearch / WebFetch** — Tier 2-4 sources
+- **WebSearch / WebFetch** — Tier 2-4 sources + anchor fallbacks
 
-## Quality Checklist (pre-delivery)
+## Quality Checklist (pre-delivery, machine-checked)
+
+Generated to `QUALITY-CHECKLIST.md` at Phase 1.5; ticked through Phases 2-7; gate Step 11 confirms 100% ticked.
 
 - [ ] Scope locked in `SCOPE.md` and confirmed by user
-- [ ] chemwise anchor complete for every in-scope substance
-- [ ] Every endpoint claim tier-tagged
-- [ ] PRISMA flow diagram complete
-- [ ] All citations verified (100% pass)
-- [ ] Evidence table complete with Klimisch/equivalent per study
-- [ ] Data gaps mapped to Reg 283/284 data point IDs
+- [ ] Contract locked in `OUTPUT-CONTRACT.md` + `.json` (Phase 1.5)
+- [ ] Anchor 12/12 (or N/12 with waivers) — `regulatory_anchor/CHEMWISE-CHECKLIST.md`
+- [ ] Identity cross-verified across ≥2 sources
+- [ ] Every endpoint claim tier-tagged via lookup
+- [ ] Every ledger row carries bias_class (NEUTRAL / DECLARED-COI / POLITICAL excluded / TRADE-PRESS market-only / etc.)
+- [ ] No POLITICAL sources as standalone evidence (cite-replace applied)
+- [ ] No PREDATORY publishers in ledger
+- [ ] No UNRELIABLE sources (Wikipedia, blogs, social) in ledger
+- [ ] Echo-chamber check passed (every advocacy/trade-press row has Tier 1-2 corroborator)
+- [ ] Contested endpoints triangulated (≥1 Tier 1-2 + ≥1 independent Tier 3)
+- [ ] Hazard-vs-risk distinction preserved (no unguarded conflation)
+- [ ] PRISMA flow (or PRISMA-ScR) complete
+- [ ] All citations verified (100% pass, every ledger row has `fetched_at`)
+- [ ] Evidence table populated with Klimisch/equivalent per study (where archetype requires)
+- [ ] Data gaps mapped to Reg 283/284 data point IDs (where applicable)
 - [ ] No em-dashes / en-dashes
 - [ ] No absolute language unmatched to evidence weight
 - [ ] Source voice attributed explicitly (EFSA vs applicant vs author)
 - [ ] Repealed/amended legislation flagged correctly
-- [ ] Conflict-of-interest flags on industry-funded sources
+- [ ] COI flags on industry-funded sources via `assets/coi_flags.json`
 - [ ] Limitations section drafted
+- [ ] Figures meet contract `figure_requirements`
+- [ ] No unfilled `[TODO`/`[FILL` placeholders
+- [ ] Gate Step 1-11 all `PASS`
 
 Review fails if any box unchecked. Do not deliver.

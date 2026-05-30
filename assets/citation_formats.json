@@ -1,0 +1,64 @@
+{
+  "schema_version": "1.0",
+  "description": "Citation format templates per style. Phase 6 fills slots only; format string is fixed.",
+  "styles": {
+    "efsa": {
+      "inline": "({author_short}, {year})",
+      "inline_legislation": "[CELEX:{celex}]",
+      "inline_efsa_conclusion": "(EFSA, {year})",
+      "reference_journal": "{authors}. {year}. {title}. {journal} {volume}({issue}): {pages}. https://doi.org/{doi} [accessed {accessed}].",
+      "reference_efsa_conclusion": "EFSA (European Food Safety Authority). {year}. Conclusion on the peer review of the pesticide risk assessment of the active substance {substance}. EFSA Journal {year};{volume}({issue}):{article_no}, {pages} pp. https://doi.org/{doi} [accessed {accessed}].",
+      "reference_legislation": "{instrument_short_title}. {full_official_citation}. Available at {eurlex_url} [accessed {accessed}].",
+      "reference_rar": "{rms_country} (Rapporteur Member State). {year}. Renewal Assessment Report on {substance}, Volume {volume}. Prepared for the European Food Safety Authority.",
+      "reference_guideline": "OECD. {year}. Test No. {tg_num}: {title}. OECD Guidelines for the Testing of Chemicals, Section {section}. https://doi.org/{doi}",
+      "placement": "inline_parenthetical",
+      "marker_pattern": "[CIT-{n}]"
+    },
+    "vancouver": {
+      "inline": "[{n}]",
+      "inline_legislation": "[{n}]",
+      "inline_efsa_conclusion": "[{n}]",
+      "reference_journal": "{n}. {authors}. {title}. {journal}. {year};{volume}({issue}):{pages}. doi:{doi}",
+      "reference_efsa_conclusion": "{n}. EFSA. Conclusion on the peer review of the pesticide risk assessment of the active substance {substance}. EFSA Journal. {year};{volume}({issue}):{article_no}. doi:{doi}",
+      "reference_legislation": "{n}. {instrument_short_title}. {full_official_citation}. {eurlex_url}. Accessed {accessed}.",
+      "placement": "numbered_superscript",
+      "marker_pattern": "[CIT-{n}]"
+    },
+    "apa": {
+      "inline": "({author_short}, {year})",
+      "inline_legislation": "({instrument_short_title}, {year})",
+      "reference_journal": "{authors} ({year}). {title}. {journal}, {volume}({issue}), {pages}. https://doi.org/{doi}",
+      "reference_efsa_conclusion": "European Food Safety Authority. ({year}). Conclusion on the peer review of the pesticide risk assessment of the active substance {substance}. EFSA Journal, {volume}({issue}), {article_no}. https://doi.org/{doi}",
+      "placement": "inline_parenthetical",
+      "marker_pattern": "[CIT-{n}]"
+    },
+    "acs": {
+      "inline": "({n})",
+      "reference_journal": "({n}) {authors_acs} {title}. {journal_abbrev} {year}, {volume}, {pages}.",
+      "reference_efsa_conclusion": "({n}) European Food Safety Authority. Conclusion on the peer review of the pesticide risk assessment of the active substance {substance}. EFSA J. {year}, {volume}, {article_no}.",
+      "placement": "numbered_superscript",
+      "marker_pattern": "[CIT-{n}]"
+    }
+  },
+  "marker_universal": {
+    "pattern": "\\[CIT-[0-9]+\\]",
+    "description": "Every in-text citation uses [CIT-N] marker in REVIEW.md regardless of final style. Style-formatted reference list is generated from CITATION-LEDGER.md at delivery time. This decouples citation tracking (CIT-N) from format rendering."
+  },
+  "ledger_required_fields": [
+    "id",
+    "claim_summary",
+    "source_type",
+    "authors",
+    "year",
+    "title",
+    "journal_or_publisher",
+    "volume_issue_pages",
+    "doi_or_url",
+    "celex",
+    "tier",
+    "coi",
+    "fetched_at",
+    "crossref_match",
+    "quote_span"
+  ]
+}

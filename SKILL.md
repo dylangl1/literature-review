@@ -76,12 +76,12 @@ Output structure is composed from four layers. Layers tighten downward; no layer
 ```
 Layer 0  EU evaluation spine     (always; integrity floor)
 Layer 1  Discipline overlay      (one or more: regulatory / mammalian_tox / ecotox / efate / residues / analytical / chemistry / efficacy / exposure)
-Layer 2  Archetype overlay       (rapid / structured / systematic / comparative / scoping / narrative_critical / technical)
-Layer 3  User overrides          (jurisdiction, depth, citation style, length within L1+L2 floor)
+Layer 2  Review type + modifier  (type: literature_review / systematic_review / database_study / data_analysis) + (modifier: comparative / scoping / rapid / none)
+Layer 3  User overrides          (jurisdiction, citation style, length within L1+L2 floor)
 ```
 
 L0 reference: see `references/discipline_overlays.md` (multi-discipline composition section at bottom).
-L1 reference: `references/discipline_overlays.md`.
+L1 reference: `references/discipline_overlays.md` — includes preferred review type, output style, and molecular structure requirements per discipline.
 L2 reference: `references/archetype_integrity_contracts.md`.
 L3: captured at Phase 1.
 
@@ -113,25 +113,47 @@ Execute phases sequentially. Do not skip any phase. Phase 1, 1.5, 2, 7, and 8 ar
 
 Use `AskUserQuestion` to lock scope before any searching. Capture (enum where possible to constrain weak models):
 
-1. **Archetype** (enum): rapid | structured | systematic | comparative | scoping | narrative_critical | technical
-2. **Discipline(s)** (multi-select enum): regulatory | mammalian_tox | ecotox | efate | residues | analytical | chemistry | efficacy | exposure
-3. **Question type** (enum): hazard ID | hazard characterisation | exposure | risk analysis | risk characterisation | data gap | MRL review | DP/reference product | ED assessment | substitution | renewal | efficacy/resistance | mode of action | regulatory precedent | analytical method | comparative assessment
-4. **PECO-R framework** (or PCC for scoping):
+1. **Review type** (enum): `literature_review` | `systematic_review` | `database_study` | `data_analysis`
+   - `literature_review`: narrative/descriptive synthesis; no formal search protocol required; primary type for regulatory affairs and standard regulatory science endpoint summaries
+   - `systematic_review`: structured protocol; PRISMA flow; dual screening; quality appraisal; required for ED assessment, substitution, litigation defence
+   - `database_study`: analysis of existing registry or dataset (MRL DB, resistance monitoring, authorisation footprint)
+   - `data_analysis`: modelling or computation (FOCUS PEC, PRIMo, QSAR, trial statistics)
+   - If unsure: offer the discipline-appropriate default from `references/discipline_overlays.md §Preferred review type(s)`.
+
+2. **Scope modifier** (optional): `comparative` | `scoping` | `rapid` | none
+   - `comparative`: multi-substance symmetric comparison; triggers N×12 anchor; symmetric endpoint matrix required
+   - `scoping`: evidence mapping; PCC framework; no quality appraisal; PRISMA-ScR; no synthesis prose
+   - `rapid`: narrows question scope (one substance × one endpoint cluster); ≤2000 words narrative; 12/12 anchor still required
+
+3. **Discipline(s)** (multi-select enum): `regulatory` | `mammalian_tox` | `ecotox` | `efate` | `residues` | `analytical` | `chemistry` | `efficacy` | `exposure`
+
+4. **Question type** (enum): hazard ID | hazard characterisation | exposure | risk analysis | risk characterisation | data gap | MRL review | DP/reference product | ED assessment | substitution | renewal | efficacy/resistance | mode of action | regulatory precedent | analytical method | comparative assessment | regulatory position | PEC modelling | dietary intake
+
+5. **PECO-R framework** (for literature_review / systematic_review / data_analysis; PCC for scoping modifier):
    - **P** Population / matrix
    - **E** Exposure (substance + route + duration + concentration range)
    - **C** Comparator (control, reference, baseline GAP, threshold)
    - **O** Outcome (endpoints, parameters)
    - **R** Regulatory context (instrument, Annex point, jurisdiction)
-5. **Substance scope**: active substance(s), metabolites, co-formulants, formulation, CAS RN, EC, ISO common name, IUPAC, SMILES/InChIKey. For comparative archetype: explicit comparator list + inclusion criteria.
-6. **Endpoint scope**: specific Annex II/III data points, or open if exploratory. For comparative: locked endpoint set applied to all comparators.
-7. **Geography/jurisdiction**: EU-wide | zonal (N/C/S) | specific MS | global comparator
-8. **Time window**: default last 10 years; full historical for renewal/ED/substitution
-9. **Use context**: dossier (new/renewal/Art.43) | MRL | Art.12 | DP | internal R&D | litigation defence | scientific opinion drafting
-10. **Depth tier**: rapid | structured | systematic (independent of archetype, e.g. structured-comparative possible)
+
+6. **Substance scope**: active substance(s), metabolites, co-formulants, formulation, CAS RN, EC, ISO common name, IUPAC, SMILES/InChIKey. For `comparative` modifier: explicit comparator list + inclusion criteria.
+
+7. **Endpoint scope**: specific Annex II/III data points, or open if exploratory. For `comparative` modifier: locked endpoint set applied to all comparators.
+
+8. **Geography/jurisdiction**: EU-wide | zonal (N/C/S) | specific MS | global comparator
+
+9. **Time window**: default last 10 years; full historical for renewal/ED/substitution
+
+10. **Use context**: dossier (new/renewal/Art.43) | MRL | Art.12 | DP | internal R&D | litigation defence | scientific opinion drafting
+
 11. **Output format**: Markdown only | Markdown + Word (via `anthropic-skills:docx`) | Both
+
 12. **Citation style** (enum): efsa (default) | vancouver | apa | acs
+
 13. **Citation placement** (enum): inline_parenthetical | numbered_superscript | footnote
+
 14. **Model class** (enum, user-confirmed or auto-detected): strong | mid | weak — drives behavioural floor per `references/model_floor_protocol.md`
+
 15. **Anchor waivers** (any of the 12 items NA for this scope): list item IDs + justifications
 
 Write captured scope to `SCOPE.md`. Block downstream phases until user confirms.
@@ -409,14 +431,20 @@ When sources conflict, higher tier wins unless lower-tier post-dates higher-tier
 
 ## Bundled Resources
 
-**Templates** (`assets/templates/`):
-- `rapid.md` — narrow-question quick review
-- `structured.md` — default IMRaD-extended (wraps `review_template.md`)
-- `systematic.md` — PRISMA-grade
-- `comparative.md` — matrix-driven cross-substance
-- `scoping.md` — PRISMA-ScR, evidence + gap map
-- `narrative_critical.md` — SANRA-scored position paper
-- `technical.md` — analytical / chemistry / pathway
+**Templates** (`assets/templates/`) — current:
+- `literature_review.md` — narrative/descriptive synthesis; discipline output style injection points; regulatory affairs + regulatory science + technical variants
+- `systematic_review.md` — PRISMA-grade; dual screening; quality appraisal; WoE per endpoint
+- `database_study.md` — registry/dataset analysis; gap analysis; MRL coverage; authorisation footprint
+- `data_analysis.md` — modelling/computation; FOCUS PEC; PRIMo; QSAR; trial statistics
+
+**Templates** (`assets/templates/`) — legacy (superseded; do not use for new reviews):
+- `rapid.md` → use `literature_review.md` + `rapid` modifier
+- `structured.md` → use `literature_review.md`
+- `systematic.md` → use `systematic_review.md`
+- `comparative.md` → use any type + `comparative` modifier
+- `scoping.md` → use `literature_review.md` or `systematic_review.md` + `scoping` modifier
+- `narrative_critical.md` → use `literature_review.md` + SANRA score in Limitations
+- `technical.md` → use `systematic_review.md` + `analytical` or `chemistry` discipline overlay
 
 **Templates** (`assets/` root):
 - `review_template.md` — full structured review skeleton (15 sections)
@@ -427,8 +455,9 @@ When sources conflict, higher tier wins unless lower-tier post-dates higher-tier
 
 **References** (`references/`):
 - `source_ranking.md` — **authoritative source ranking + bias-class + cite-replace + triangulation + echo-chamber + hazard-vs-risk decision document**
-- `discipline_overlays.md` — Layer 1 per-discipline sections, figures, source rankings, quality tools, anchors (9 disciplines)
-- `archetype_integrity_contracts.md` — Layer 2 archetype failure modes + integrity guarantees
+- `discipline_overlays.md` — Layer 1 per-discipline sections, figures, source rankings, quality tools, anchors, output styles, preferred review types, molecular structure requirements (9 disciplines)
+- `archetype_integrity_contracts.md` — Layer 2 review type integrity contracts (literature_review / systematic_review / database_study / data_analysis) + scope modifier contracts (comparative / scoping / rapid)
+- `molecular_structure_rendering.md` — mandatory protocol for structure figure rendering; source priority; caption format; gate requirements
 - `anchor_fallback_paths.md` — chemwise + 2 fallback URLs per anchor item
 - `model_floor_protocol.md` — Claude-only model spec; behavioural floors per tier
 - `source_hierarchy.md` — DEPRECATED; superseded by `source_ranking.md`

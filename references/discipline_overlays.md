@@ -8,6 +8,12 @@ Each overlay defines: required sections, required figures/tables, source ranking
 
 **Use cases**: approval status, data protection (DP) check, Art.12 MRL review, Art.43 re-authorisation, substitution assessment (Reg 2015/408), ED categorisation (Reg 2018/605), regulatory precedent, dossier procedural history.
 
+**Preferred review type(s):** `literature_review` (primary). `database_study` for Art.12 MRL coverage or registration footprint analysis. `systematic_review` only for ED/substitution where structured evidence collation is required.
+
+**Output style:** Structured narrative paragraphs with logical legal/regulatory sequencing. Tables for approval timelines, jurisdictional status matrices, classification matrices — but NOT study data extraction tables. Precise regulatory language throughout: "approved under conditions", "candidate for substitution", "non-renewal proposed", "revocation of approval" — never "banned". CELEX citations, EFSA-Q reference numbers, document version + date per cited instrument. No cross-study quantitative data tables; regulatory decisions cited as authoritative (Tier 1). Source voice maintained: "The Commission, by Commission Implementing Regulation (EU) [no.] [CIT-N], [did X]".
+
+**Molecular structure requirements:** Parent compound mandatory in §2 Substance Identity. Additional structures only if substance identity itself is disputed or if co-formulant/metabolite identity is the regulatory question.
+
 **Required sections** (in order):
 1. Legal basis (Reg 1107/2009 + relevant Implementing Regs, CELEX cited)
 2. Approval / authorisation history (timeline)
@@ -42,6 +48,12 @@ Each overlay defines: required sections, required figures/tables, source ranking
 ---
 
 ## 2. Mammalian toxicology
+
+**Preferred review type(s):** `literature_review` (standard endpoint summary). `systematic_review` for ED endpoint review, genotoxicity mode-of-action dispute, carcinogenicity weight-of-evidence, or litigation context.
+
+**Output style:** Structured narrative paragraphs per endpoint group, each followed by a mandatory cross-study endpoint table. WoE statement per endpoint section. Quantitative anchors mandatory for all NOAEL/LOAEL/NOEC/LC50/BMD values: value + unit + species + strain + sex + n + route + duration + GLP + OECD TG + source. Source voice explicit: "EFSA concluded a NOAEL of X mg/kg bw/d based on [study type, species] [CIT-N]" vs "the applicant reported a NOAEL of X mg/kg bw/d [CIT-N]". Calibrated hedging per WoE strength. Regulatory reference values (ADI, ARfD, AOEL, AAOEL) with derivation basis cited.
+
+**Molecular structure requirements:** Parent compound mandatory. Key metabolites in ADME section where metabolic scheme figures are required.
 
 **Required sections**:
 1. ADME (absorption, distribution, metabolism, excretion)
@@ -86,6 +98,12 @@ Each overlay defines: required sections, required figures/tables, source ranking
 
 ## 3. Ecotoxicology
 
+**Preferred review type(s):** `literature_review` (standard taxon-by-taxon endpoint summary). `systematic_review` for SSD derivation, bee risk assessment dispute, ED mode-of-action review.
+
+**Output style:** Structured narrative paragraphs per taxon group, each followed by a cross-study table. WoE per taxon. Quantitative anchors mandatory: LC50/EC50/NOEC with units, exposure duration, test species (Latin binomial), test medium, n, statistical method, OECD TG, GLP, source. Regulatory trigger values stated per taxon (e.g., TER vs trigger of 10 for birds; RQ vs 1 for aquatic organisms; TER vs trigger of 1000 for bees). RQ/TER computed and tabulated with PEC source explicitly cited. Source voice: "EFSA [year] concluded …" / "CRED-appraised peer-reviewed studies indicated …".
+
+**Molecular structure requirements:** Parent compound mandatory. Metabolites/degradates included in analysis (where ecotox data on metabolites assessed) require structures per `references/molecular_structure_rendering.md`.
+
 **Required sections**:
 1. Aquatic vertebrates (fish — acute + chronic + ELS + FSDT for ED)
 2. Aquatic invertebrates (daphnia + sediment dweller)
@@ -125,6 +143,12 @@ Each overlay defines: required sections, required figures/tables, source ranking
 
 ## 4. Environmental fate (efate)
 
+**Preferred review type(s):** `literature_review` (standard fate parameter summary). `data_analysis` for FOCUS PEC modelling runs. `systematic_review` for contested persistence classification or leaching potential dispute.
+
+**Output style:** Structured narrative paragraphs per fate endpoint, each followed by a cross-study parameter table. Quantitative anchors mandatory: DT50/DT90 with kinetic model (SFO/FOMC/DFOP/HS), chi-squared, geomean across n studies, normalisation to reference conditions (20°C, pF 2), species, soils, OECD TG, GLP. Koc with method, soil type, pH range. FOCUS scenario PEC values with model version, scenario name (e.g. R1 Châteaudun), window stated. Metabolite table included where relevant metabolites reach threshold. Source voice: "EFSA [year] used a geomean DT50 of X d [CIT-N]" vs "the RMS proposed a DT50 of X d [CIT-N]".
+
+**Molecular structure requirements:** Parent compound mandatory. All metabolites appearing in fate pathway diagram require structures per `references/molecular_structure_rendering.md`. Metabolic pathway/degradation scheme diagram mandatory in most reviews.
+
 **Required sections**:
 1. Route of degradation in soil (aerobic, anaerobic, sterile)
 2. Rate of degradation in soil (DT50 / DT90, kinetic model SFO/FOMC/DFOP/HS)
@@ -162,6 +186,12 @@ Each overlay defines: required sections, required figures/tables, source ranking
 
 ## 5. Residues / dietary exposure
 
+**Preferred review type(s):** `literature_review` (standard residue data package summary). `database_study` for MRL coverage analysis, Art.12 MRL database review. `data_analysis` for PRIMo dietary exposure runs (IEDI/IESTI calculations).
+
+**Output style:** Structured narrative paragraphs per residue topic, each supported by detailed data tables. Quantitative anchors mandatory: STMR, HR, MRL (mg/kg), PHI (days), GAP (rate g a.s./ha × applications × interval × BBCH stage), crop/commodity, sample type (raw/processed), n trials, jurisdiction. Metabolic pathway diagrams mandatory for plant and animal metabolism sections. MRL comparison tables across jurisdictions. Dietary exposure results (IEDI, IESTI) tabulated as % ADI and % ARfD per population group. Source voice: "EFSA MRL Reasoned Opinion [CIT-N] proposed a STMR of X mg/kg for [commodity]".
+
+**Molecular structure requirements:** Parent compound mandatory. Enforcement and risk assessment residue definition components require structures — all named metabolites in the residue definition section per `references/molecular_structure_rendering.md`. Metabolic pathway diagrams show structures of parent + all named metabolites with %TRR.
+
 **Required sections**:
 1. Plant metabolism (primary crops representing groups 1-4)
 2. Livestock metabolism (lactating ruminant, laying hen; if relevant pig, fish)
@@ -198,6 +228,12 @@ Each overlay defines: required sections, required figures/tables, source ranking
 ---
 
 ## 6. Analytical chemistry / methods review
+
+**Preferred review type(s):** `systematic_review` (primary — method landscape is structured and requires protocol-driven search). `data_analysis` where the primary output is a method validation run or comparison of detection limits.
+
+**Output style:** Figure-primary, table-dense. Narrative paragraphs provide context and synthesis, but figures and tables carry the primary scientific content. Molecular structures mandatory for every named compound (analyte, metabolites, degradates, ISTD) per `references/molecular_structure_rendering.md`. Method comparison tables with LOQ, recovery, RSD, matrix, instrument, column, mobile phase. Validation tables per SANTE/11312/2021 pass/fail criteria. MS/MS transition tables. Representative chromatogram figures (blank, LOQ-spike, sample) mandatory. Flow diagrams for sample preparation workflows recommended. All values in tables include units, n replicates, source, CIT.
+
+**Molecular structure requirements:** MANDATORY for all named compounds — analyte(s), metabolites, degradates, internal standard(s). Composite structure figures for multi-analyte methods. Structures included at first mention and in the Chemical Identity section. Per `references/molecular_structure_rendering.md`.
 
 **Required sections**:
 1. Analyte scope (parent + metabolites + isomers + degradates)
@@ -241,6 +277,12 @@ Each overlay defines: required sections, required figures/tables, source ranking
 
 ## 7. Chemistry / mechanism / MoA review
 
+**Preferred review type(s):** `systematic_review` (primary — structured search of chemistry literature required). `data_analysis` for QSAR landscape, in silico endpoint prediction. `literature_review` for regulatory MoA narrative (e.g., EFSA MoA guidance-based narrative for ED or resistance mode-of-action).
+
+**Output style:** Figure-primary, table-supported. Molecular structures are the central scientific objects — every named compound rendered. Reaction schemes and degradation pathways mandatory where synthesis routes, biotransformation, or photolysis are in scope. Physchem property tables with method, value, unit, source per property. SAR matrices tabulated. Binding site figures or docking representations where literature provides them. Narrative provides mechanistic synthesis and regulatory interpretation. Source voice: "EFSA [year] noted a primary MoA of [X] [CIT-N]"; "IRAC classifies [substance] in Group [Y] based on [Z] [CIT-N]".
+
+**Molecular structure requirements:** MANDATORY for parent compound, all named analogues (SAR section), all key metabolites and degradates discussed in MoA context. Markush structures for SAR analysis. Reaction scheme figures for synthesis routes, photolysis, hydrolysis, biotransformation. Per `references/molecular_structure_rendering.md`.
+
 **Required sections**:
 1. Chemical class and taxonomy (IRAC/HRAC/FRAC group; sub-class)
 2. Synthesis routes (where in scope; literature + patent)
@@ -279,6 +321,12 @@ Each overlay defines: required sections, required figures/tables, source ranking
 
 ## 8. Efficacy / resistance
 
+**Preferred review type(s):** `literature_review` (standard efficacy summary). `database_study` for resistance monitoring registry analysis (IRAC/HRAC/FRAC databases). `data_analysis` for dose-response statistical modelling or trial data meta-analysis.
+
+**Output style:** Structured narrative paragraphs per target pest/disease, supported by trial data tables and dose-response figures. Quantitative anchors mandatory: % control / yield response, dose (g a.s./ha), timing (BBCH stage), trial n, sites, region, year, target pest/disease (scientific name), reference product. EPPO standard compliance stated per trial. GEP (Good Experimental Practice) flag per trial. Resistance classification (IRAC/HRAC/FRAC group) cited with resistance mechanism where known. Source voice: "Zonal efficacy assessment for [zone] [CIT-N] concluded …"; "IRAC classifies [substance] in MoA Group [Y] [CIT-N]".
+
+**Molecular structure requirements:** Parent compound mandatory in §2. No additional structure requirements for standard efficacy reviews unless MoA or resistance mechanism discussion requires structural comparison of analogues.
+
 **Required sections**:
 1. GAP (rate, applications, interval, timing, formulation)
 2. Trial design (EPPO PP1 series alignment)
@@ -310,6 +358,12 @@ Each overlay defines: required sections, required figures/tables, source ranking
 ---
 
 ## 9. Exposure (operator / worker / bystander / resident)
+
+**Preferred review type(s):** `data_analysis` (primary — AOEM or model-based exposure calculations). `literature_review` for narrative summary of exposure scenario basis. `systematic_review` for contested AOEL/AAOEL derivation.
+
+**Output style:** Scenario-driven. Structured narrative paragraphs per scenario type, each followed by a scenario summary table. Quantitative anchors mandatory: exposure (mg a.s./kg bw/d), AOEL/AAOEL (mg/kg bw/d), MoE, PPE level (none / gloves / gloves+coverall / +RPE), application equipment, body weight assumption. MoE distributions presented for each scenario and PPE tier. Contribution-to-exposure breakdown (hand/body/inhalation) where model outputs permit. Source voice: "Under the AOEM default assumptions [CIT-N], estimated operator exposure was X mg/kg bw/d, yielding a MoE of Y against the AOEL of Z mg/kg bw/d [CIT-N]".
+
+**Molecular structure requirements:** Parent compound mandatory. No additional structure requirements unless metabolite exposure is an element of the assessment.
 
 **Required sections**:
 1. AOEL / AAOEL derivation (link to tox §10)

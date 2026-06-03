@@ -24,8 +24,6 @@ At Phase 1 entry, detect model via `$ANTHROPIC_MODEL` env / model name. If below
 
 > Skill ppp-literature-review requires Claude Opus 4.7 (Medium reasoning minimum) or Sonnet 4.7 (rapid archetype only). Current model: {detected}. Halting. Switch model and re-invoke.
 
-Full details: `references/model_floor_protocol.md`.
-
 ## MANDATORY MINIMUMS (read every phase)
 
 These rules are NON-NEGOTIABLE regardless of model, archetype, or "quick" framing.
@@ -152,7 +150,7 @@ Use `AskUserQuestion` to lock scope before any searching. Capture (enum where po
 
 13. **Citation placement** (enum): inline_parenthetical | numbered_superscript | footnote
 
-14. **Model class** (enum, user-confirmed or auto-detected): strong | mid | weak — drives behavioural floor per `references/model_floor_protocol.md`
+14. **Model class** (enum, user-confirmed or auto-detected): strong | mid | weak — drives behavioural floor (see §Behavioural Floors per Model Class below)
 
 15. **Anchor waivers** (any of the 12 items NA for this scope): list item IDs + justifications
 
@@ -188,11 +186,11 @@ Establish regulatory ground truth before any literature search.
 4. **Identity verification** (item 1): require CAS match across ≥2 sources. Write `cross_verified: true` to `regulatory_anchor/01_identity.md`. If fails, BLOCK Phase 3.
 5. For comparative archetype: repeat full anchor for each comparator (N×12).
 6. Output `regulatory_anchor/anchor_summary.md` — synthesised identity + regulatory status + key EFSA endpoints + classification + dated source list.
-7. For legislation, resolve via `assets/eu_ppp_regulations.json` (`local_md` field) before WebFetching EUR-Lex. Cite as CELEX.
+7. For legislation, resolve via `assets/eu_ppp_regulations.json` (CELEX + `eurlex_html` URL) and WebFetch EUR-Lex. Cite as CELEX.
 
 ### Phase 3 — Tiered Literature Search
 
-Build search blocks from PECO-R using `assets/search_blocks/{archetype}/{discipline}/{endpoint}.txt` canned Boolean strings. Substitute `{SUBSTANCE}`, `{CAS}`, `{SYNONYMS}` tokens only. No freeform queries (mid/weak models).
+Build search blocks from PECO-R using canned Boolean strings. Pattern: `({SUBSTANCE} OR "{CAS}" OR {SYNONYMS}) AND ({ENDPOINT_TERMS}) AND ({SPECIES/MATRIX_TERMS}) {YEAR_FROM}-{YEAR_TO}`. Substitute `{SUBSTANCE}`, `{CAS}`, `{SYNONYMS}`, `{EC}`, `{INCHIKEY}` tokens. No freeform queries (mid/weak models).
 
 Run tier order so higher-tier sources establish canonical claims first.
 
@@ -206,7 +204,7 @@ Run tier order so higher-tier sources establish canonical claims first.
 
 **Default reject**: predatory (Beall/Cabells), non-English without verified translation, blog/advocacy claims not triangulated against T1-2, trade press except factual market context.
 
-Document every search in `SEARCH-LOG.md` using `assets/search_log_template.md`: database, date, exact query string, filters, hit count, action.
+Document every search in `SEARCH-LOG.md`: database, date, exact query string, filters, hit count, action (include / exclude / pending).
 
 ### Phase 4 — Screening and Selection
 
@@ -215,7 +213,7 @@ Document every search in `SEARCH-LOG.md` using `assets/search_log_template.md`: 
 3. **Abstract screening**.
 4. **Full-text screening** with study-design quality flags.
 5. **Systematic archetype**: simulate dual screening (two passes with different framing — hazard-first vs exposure-first). Disagreement rate logged.
-6. Build PRISMA 2020 flow (or PRISMA-ScR for scoping, PRISMA-RR for rapid) from `assets/prisma_template.md`. Write to `PRISMA-FLOW.md`.
+6. Build PRISMA 2020 flow (or PRISMA-ScR for scoping modifier). Write to `PRISMA-FLOW.md`. Required for `systematic_review` type and `scoping` modifier.
 
 ### Phase 4.5 — Credibility Triage (gate)
 
@@ -398,19 +396,18 @@ If user selected Word output: invoke `anthropic-skills:docx` on `REVIEW.md` to p
 
 ## Behavioural Floors per Model Class
 
-Per `references/model_floor_protocol.md`:
-
 | Class | Behaviour |
 |---|---|
-| Strong (Opus 4+, GPT-5 high, Gemini 2.5 Pro) | Default flow |
-| Mid (Sonnet 4.5+, Haiku 4, GPT-5 mid) | Canned Boolean blocks only; stricter scaffold adherence |
-| Weak (Haiku 3.5, small local, older Sonnet 3.5) | `STATE.md` confirmation per phase; one chemwise call per turn max; contract recap at start of every phase; per-discipline sections only (no cross-discipline narrative integration) |
+| Strong (Opus 4.7 High) | Default flow; cross-discipline narrative integration; can extend canned Boolean blocks (log in SEARCH-LOG.md) |
+| Default (Opus 4.7 Medium) | Default flow; canned Boolean blocks preferred; extension with logging permitted |
+| Permitted (Sonnet 4.7) | Rapid modifier only; canned Boolean blocks mandatory; no freeform queries; scaffold fill only; `STATE.md` confirmation per phase; one chemwise call per turn max |
+| Blocked (Sonnet ≤4.6, Haiku class, non-Claude) | Skill halts at Phase 1 with model-class error |
 
 Gate is identical across classes. Quality floor invariant.
 
 ## Source Hierarchy Quick Reference
 
-See `references/source_hierarchy.md` and `references/discipline_overlays.md` per-discipline rankings. Tier assignment by lookup (`assets/source_tier_lookup.json`), not model judgement.
+See `references/source_ranking.md` and `references/discipline_overlays.md` per-discipline rankings. Tier assignment by lookup (`assets/source_tier_lookup.json`), not model judgement.
 
 When sources conflict, higher tier wins unless lower-tier post-dates higher-tier AND presents new data. Document conflict resolution explicitly.
 
@@ -431,58 +428,28 @@ When sources conflict, higher tier wins unless lower-tier post-dates higher-tier
 
 ## Bundled Resources
 
-**Templates** (`assets/templates/`) — current:
-- `literature_review.md` — narrative/descriptive synthesis; discipline output style injection points; regulatory affairs + regulatory science + technical variants
+**Templates** (`assets/templates/`):
+- `literature_review.md` — narrative/descriptive synthesis; discipline output style injection; regulatory affairs + regulatory science + technical variants
 - `systematic_review.md` — PRISMA-grade; dual screening; quality appraisal; WoE per endpoint
 - `database_study.md` — registry/dataset analysis; gap analysis; MRL coverage; authorisation footprint
 - `data_analysis.md` — modelling/computation; FOCUS PEC; PRIMo; QSAR; trial statistics
 
-**Templates** (`assets/templates/`) — legacy (superseded; do not use for new reviews):
-- `rapid.md` → use `literature_review.md` + `rapid` modifier
-- `structured.md` → use `literature_review.md`
-- `systematic.md` → use `systematic_review.md`
-- `comparative.md` → use any type + `comparative` modifier
-- `scoping.md` → use `literature_review.md` or `systematic_review.md` + `scoping` modifier
-- `narrative_critical.md` → use `literature_review.md` + SANRA score in Limitations
-- `technical.md` → use `systematic_review.md` + `analytical` or `chemistry` discipline overlay
-
-**Templates** (`assets/` root):
-- `review_template.md` — full structured review skeleton (15 sections)
-- `prisma_template.md` — PRISMA 2020 flow
-- `search_log_template.md` — reproducible search documentation
-- `evidence_table_template.csv` — per-study data extraction
-- `scope_template.md` — Phase 1 capture
-
 **References** (`references/`):
-- `source_ranking.md` — **authoritative source ranking + bias-class + cite-replace + triangulation + echo-chamber + hazard-vs-risk decision document**
+- `source_ranking.md` — source ranking + bias-class + cite-replace + triangulation + echo-chamber + hazard-vs-risk decision document
 - `discipline_overlays.md` — Layer 1 per-discipline sections, figures, source rankings, quality tools, anchors, output styles, preferred review types, molecular structure requirements (9 disciplines)
-- `archetype_integrity_contracts.md` — Layer 2 review type integrity contracts (literature_review / systematic_review / database_study / data_analysis) + scope modifier contracts (comparative / scoping / rapid)
-- `molecular_structure_rendering.md` — mandatory protocol for structure figure rendering; source priority; caption format; gate requirements
+- `archetype_integrity_contracts.md` — Layer 2 review type integrity contracts + scope modifier contracts
+- `molecular_structure_rendering.md` — structure figure rendering protocol; source priority; caption format; gate requirements
 - `anchor_fallback_paths.md` — chemwise + 2 fallback URLs per anchor item
-- `model_floor_protocol.md` — Claude-only model spec; behavioural floors per tier
-- `source_hierarchy.md` — DEPRECATED; superseded by `source_ranking.md`
 - `quality_appraisal.md` — Klimisch, OHAT, AMSTAR-2, CRED, OECD criteria
-- `eu_regulatory_framework.md` — instrument summary
-- `chemwise_workflow.md` — chemwise MCP call sequence (preferred path)
-- `citation_styles_ppp.md` — EFSA, Vancouver, APA, ACS examples
-- `PPP_Guidance_Documents_Reference.md` — SANCO/SANTE, FOCUS, EFSA, EPPO index
-- `PPP_National_Guidance_Documents_Reference.md` — MS guidance index
-- `OECD_Test_Guidelines_Reference.md` — OECD TG index
 
 **Machine-readable assets** (`assets/`):
 - `contract_schema.json` — OUTPUT-CONTRACT JSON schema
-- `source_tier_lookup.json` — domain → tier (defensibility axis)
+- `source_tier_lookup.json` — domain → tier
 - `coi_flags.json` — domain → COI category
-- `credibility_rules.json` — bias-class lookup; political_domains; predatory_block; unreliable_block; trade_press; grey_listed; contested_endpoints; hazard_vs_risk_guard; echo_chamber_detection; claim_reframing_examples
+- `credibility_rules.json` — bias-class lookup; political_domains; predatory_block; contested_endpoints; hazard_vs_risk_guard
 - `citation_formats.json` — citation style templates
-- `eu_ppp_regulations.json` — CELEX → local markdown resolver
+- `eu_ppp_regulations.json` — CELEX index with EUR-Lex URLs (legislation lookup via WebFetch)
 - `oecd_test_guidelines.json` — OECD TG URL resolver
-
-**Regulatory corpus** (`assets/`):
-- `eu_ppp_regulations/` — local markdown copies of EU instruments
-
-**Eval** (`eval/`):
-- `reference_substances/` — golden corpus for periodic model-drift checks
 
 ## Integration
 

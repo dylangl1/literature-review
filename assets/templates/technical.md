@@ -1,9 +1,13 @@
+> **DEPRECATED as a standalone archetype.** Use `systematic_review.md` with discipline overlay `analytical` or `chemistry` per `references/discipline_overlays.md`.
+> Retained here for structural reference only. Do not use as primary template.
+
 # Technical Review: [Method / Chemistry / Pathway / Topic]
 
+**Review type:** systematic_review
+**Discipline:** [analytical | chemistry]
+**Scope modifier:** [none | rapid | comparative]
 **Prepared by:** [Author]
 **Date:** [YYYY-MM-DD]
-**Archetype:** technical
-**Sub-flavour:** [analytical | chemistry/MoA | metabolism pathway | photochemistry]
 
 > **Integrity floor:** structure imagery mandatory per substance; figures-heavy; validation/property tables mandatory per method/property; anchor 12/12; SANTE/SANCO guidance + IUPAC + EURL methods top of source ranking; manufacturer notes COI-flagged.
 
